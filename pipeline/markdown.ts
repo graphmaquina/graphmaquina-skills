@@ -130,7 +130,7 @@ export function urlSpans(markdown: string): UrlSpan[] {
       line: lineAt(position.start.line, markdown, nodeStart, destination.start),
     });
   });
-  return spans;
+  return spans.sort((a: UrlSpan, b: UrlSpan) => a.start - b.start);
 }
 
 /** Every URL a Markdown source links with the line it is on, as written. */

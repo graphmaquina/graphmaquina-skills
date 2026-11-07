@@ -144,6 +144,22 @@ describe('references', () => {
     expect(out).toBe(`${TAG_HEADER}\n\nÜnï **b** [a *b*](<${REPOSITORY}/blob/v${VERSION}/a b/A.java> "t") \r\n  tail  \n`);
   });
 
+  it('splices a link that wraps an image or inline HTML in document order', () => {
+    const page: string = '[![alt](images/x.svg)](../graphmaquina-example/A.java)\n\n[<img src="images/y.svg">](../B.java)\n';
+    const out: string = buildReferences(source(pages({ 'quickstart.md': page }))).get('quickstart.md') ?? '';
+    const blob: string = `${REPOSITORY}/blob/v${VERSION}`;
+    expect(out).toBe(
+      `${TAG_HEADER}\n\n[![alt](${blob}/docs/images/x.svg)](${blob}/graphmaquina-example/A.java)\n\n` +
+        `[<img src="${blob}/docs/images/y.svg">](${blob}/B.java)\n`,
+    );
+    expect(linkTargets(page).map((target: { url: string }) => target.url)).toEqual([
+      'images/x.svg',
+      '../graphmaquina-example/A.java',
+      'images/y.svg',
+      '../B.java',
+    ]);
+  });
+
   it('refuses a source without an index', () => {
     let problems: Problem[] = [];
     try {

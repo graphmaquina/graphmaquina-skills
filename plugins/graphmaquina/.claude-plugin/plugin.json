@@ -1,0 +1,7 @@
+{
+  "name": "graphmaquina",
+  "description": "Agent Skill for GraphMaquina, the Java 21+ library for graph-defined state machines.",
+  "author": {
+    "name": "GraphMaquina"
+  }
+}

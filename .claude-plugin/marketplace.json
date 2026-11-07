@@ -1,0 +1,13 @@
+{
+  "name": "graphmaquina",
+  "owner": {
+    "name": "GraphMaquina"
+  },
+  "plugins": [
+    {
+      "name": "graphmaquina",
+      "source": "./plugins/graphmaquina",
+      "description": "Agent Skill for GraphMaquina, the Java 21+ library for graph-defined state machines."
+    }
+  ]
+}

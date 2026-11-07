@@ -151,7 +151,8 @@ Done when the build passes with no `SG` diagnostic and the tests of section 8 pa
 3. Make the change and rebuild: renamed declarations regenerate their symbols, and javac names the handwritten
    references to fix ([IDE workflow](references/generation.md#ide-workflow)). Before adding a feature the machine does
    not use yet, such as a recovery rule or an automatic edge, find its page as section 9 says. Keep the build and the
-   tests green, and test what changed as section 8 says.
+   tests green, and test what changed as section 8 says, following
+   [testing-advanced.md](references/testing-advanced.md) for recovery rules, automatic edges and sub-machines.
 4. When the project has goldens or structural snapshots, regenerate them on purpose, as
    [reading and updating](references/testing.md#reading-and-updating) shows, review the diff, and tell the developer
    what changed in the graph.
@@ -163,24 +164,30 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
 
 1. Inventory the original machine: its states, the initial and the final ones; its events and their payloads; every
    transition as source, event, guard, target and action; where its state lives and how its machine instances are
-   created, started and stored; and every concept of the guide it uses, found under its general name in the guide's
-   contents.
-2. Translate it concept by concept with each concept's entry. Hierarchical, nested or composite states are
-   sub-machines: GraphMaquina composes machines, so map them as
-   [composite states](references/migrate-from-another-library.md#composite-states) and
-   [compose machines](references/composition.md) say, and never tell the developer that nested states are impossible.
-   For a concept without a direct equivalent, such as entry and exit actions, choice states,
-   [history states](references/migration-patterns.md#history-states),
+   created, started and stored; every concept of the guide it uses, found under its general name in the guide's
+   contents; and every hierarchical, nested or composite state, each one a sub-machine candidate.
+2. Composite states, when the inventory lists any. Before writing any code, read
+   [declare a sub-machine](references/composition.md#declare-a-sub-machine) and
+   [sub-machines over the same entity](references/composition.md#sub-machines-over-the-same-entity), then bind each
+   composite state to a sub-machine as [composite states](references/migrate-from-another-library.md#composite-states)
+   says. Flatten one only when your report says you flattened it and why a sub-machine does not fit. GraphMaquina
+   nests machines: the sentence "GraphMaquina has no nested states" is false, so never write it.
+3. Translate every other concept with its entry. For a concept without a direct equivalent, such as entry and exit
+   actions, choice states, [history states](references/migration-patterns.md#history-states) (inside a sub-machine:
+   [restore a sub-machine](references/migration-patterns.md#restore-a-sub-machine)),
    [parallel regions](references/migration-patterns.md#parallel-regions), timers or deferred events, use the closest
    pattern its entry gives. [Migration patterns](references/migration-patterns.md) builds and tests the patterns for
    entry and exit actions, history states, parallel regions, timers and deferred events.
-3. Warn. For every concept the original uses, whatever its kind, relay each sentence of its "What changes" that
-   applies and each note that changes what callers observe, naming the concept. For a concept without a direct
+4. Warn. For every concept the original uses, whatever its kind, check every sentence of its "What changes" and its
+   notes, and relay each one that applies or that changes what callers observe, naming the concept. When the original
+   lets exceptions out of an action, relay that an exception the edge does not declare now aborts the call, commits
+   nothing and reaches the caller wrapped in a `TransitionAbortedException`
+   ([errors in actions](references/migrate-from-another-library.md#errors-in-actions)). For a concept without a direct
    equivalent, also say which alternative you used.
-4. Write the parity test that step 4 of the procedure describes, with `graphmaquina-test`: the structure of the new
+5. Write the parity test that step 4 of the procedure describes, with `graphmaquina-test`: the structure of the new
    graph, and every path of the original replayed through the facade.
-5. Keep the original machine until the developer asks you to remove it.
-6. End your report with the full list of warnings.
+6. Keep the original machine until the developer asks you to remove it.
+7. End your report with the full list of warnings.
 
 ## 7. When the build or a call fails
 
@@ -211,12 +218,21 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
   - every edge applied: `isApplied()`, `movedTo` and the live state with `hasEntityState`;
   - every guard rejection: `isRejectedByGuardNamed`;
   - every failure route: `isFailed()`, `hasFailureTransition` and `movedTo`;
-  - every policy answer: `hasNoTransition()` and `hasReason`, or `rejects(id, reason)` on the definition's policy;
-  - the graph's structure: `GraphSnapshots.assertMatches`, or typed assertions on `definition()`, as
-    [goldens and structural snapshots](references/testing.md#goldens-and-structural-snapshots) shows.
+  - every policy answer of a state that is not terminal: `hasNoTransition()` and `hasReason` with the policy's exact
+    reason, both, or `rejects(id, reason)` on the definition's policy;
+  - at least one structure test: typed assertions on `definition()`, such as `hasInitial`, `hasTerminalsExactly` and
+    `hasTransitionsExactly`, or `GraphSnapshots.assertMatches`, as
+    [what each entry point checks](references/testing.md#what-each-entry-point-checks) and
+    [goldens and structural snapshots](references/testing.md#goldens-and-structural-snapshots) show;
+  - every automatic edge, including those a migration pattern adds: `automaticSteps()` and the entity's final state,
+    and `automaticBlock()` where the references say an arrival reports a block.
+- Test recovery rules, automatic edges and sub-machines as
+  [failure kinds and recovery rules](references/testing-advanced.md#failure-kinds-and-recovery-rules),
+  [automatic transitions](references/testing-advanced.md#automatic-transitions) and
+  [sub-machines](references/testing-advanced.md#sub-machines) show.
 - Before relying on an assertion, read [what a check does not prove](references/testing.md#what-a-check-does-not-prove).
-- Samples: [graphs, outcomes, probes and async](references/testing-samples.md), and
-  [recovery, sub-machines, automatic transitions and the call's flow](references/testing-advanced.md).
+- More samples: [graphs, outcomes, probes and async](references/testing-samples.md), and
+  [the call's flow and its trail](references/testing-advanced.md#the-calls-flow-and-its-trail).
 
 ## 9. Find a feature
 
@@ -228,7 +244,10 @@ section that covers it. Read that section before writing code for the feature.
 
 Tell the developer:
 
-- what you changed, file by file;
+- what you changed, file by file, in exact words: "added" for what you added, such as compiler flags, and "kept" only
+  for what was already there;
+- the ambiguities of the domain you resolved, and how you resolved each;
 - the build and test commands you ran and their results, with the number of tests run and failed;
-- for a migration, the full list of warnings;
+- for a migration, each composite state of the original and the sub-machine it became, or why you flattened it, and
+  the full list of warnings;
 - any version mismatch from section 1, and anything you looked for in the references and did not find.

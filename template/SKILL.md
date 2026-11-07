@@ -166,30 +166,35 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
    transition as source, event, guard, target and action; where its state lives and how its machine instances are
    created, started and stored; every concept of the guide it uses, found under its general name in the guide's
    contents; and every hierarchical, nested or composite state, each one a sub-machine candidate.
-2. Composite states, when the inventory lists any. Before writing any code, read
+2. Before writing any code, read the guide's procedure and the whole entry of every concept in the inventory: open and
+   read each one, never only a text search of the guide.
+3. Composite states, when the inventory lists any. Before writing any code, read
    [declare a sub-machine](references/composition.md#declare-a-sub-machine) and
    [sub-machines over the same entity](references/composition.md#sub-machines-over-the-same-entity), then bind each
    composite state to a sub-machine as [composite states](references/migrate-from-another-library.md#composite-states)
    says. A parallel state with several regions is not one sub-machine, since a state holds at most one (`SG803`):
-   translate it with the parallel regions pattern of step 3. Flatten a composite state only when your report says you
+   translate it with the parallel regions pattern of step 4. Flatten a composite state only when your report says you
    flattened it and why a sub-machine does not fit. GraphMaquina nests machines: never tell the developer that nested
    states are missing or impossible.
-3. Translate every other concept with its entry. For a concept without a direct equivalent, such as entry and exit
+4. Translate every other concept with its entry. For a concept without a direct equivalent, such as entry and exit
    actions, choice states, [history states](references/migration-patterns.md#history-states) (inside a sub-machine:
    [restore a sub-machine](references/migration-patterns.md#restore-a-sub-machine)),
    [parallel regions](references/migration-patterns.md#parallel-regions), timers or deferred events, use the closest
-   pattern its entry gives. [Migration patterns](references/migration-patterns.md) builds and tests the patterns for
-   entry and exit actions, history states, parallel regions, timers and deferred events.
-4. Warn. For every concept the original uses, whatever its kind, check every sentence of its "What changes" and its
-   notes, and relay each one that applies or that changes what callers observe, naming the concept. When the original
-   lets exceptions out of an action, relay that an exception the edge does not declare now aborts the call, commits
-   nothing and reaches the caller wrapped in a `TransitionAbortedException`
+   pattern its entry gives. [Migration patterns](references/migration-patterns.md) builds and tests each of them
+   except choice states.
+5. Warn, from a checklist. Before the report, list each sentence of the "What changes" and the notes of every concept
+   the original uses, whatever its kind, those translated with a migration pattern included, and mark each one relayed
+   or not applicable. Relay each applicable sentence in the report as a warning of its own, in your words, naming the
+   concept, never folded into the description of a pattern. Two are dropped most often: the stored history field is
+   the developer's to persist with the entity, and an event goes to one region's facade, never to all regions. When the
+   original lets exceptions out of an action, relay that an exception the edge does not declare now aborts the call,
+   commits nothing and reaches the caller wrapped in a `TransitionAbortedException`
    ([errors in actions](references/migrate-from-another-library.md#errors-in-actions)). For a concept without a direct
    equivalent, also say which alternative you used.
-5. Write the parity test that step 4 of the procedure describes, with `graphmaquina-test`: the structure of the new
+6. Write the parity test that step 4 of the procedure describes, with `graphmaquina-test`: the structure of the new
    graph, and every path of the original replayed through the facade.
-6. Keep the original machine until the developer asks you to remove it.
-7. End your report with the full list of warnings.
+7. Keep the original machine until the developer asks you to remove it.
+8. End your report with the full list of warnings.
 
 ## 7. When the build or a call fails
 
@@ -250,6 +255,8 @@ Tell the developer:
   for what was already there;
 - the ambiguities of the domain you resolved, and how you resolved each;
 - the build and test commands you ran and their results, with the number of tests run and failed;
-- for a migration, each composite state of the original and the sub-machine it became, or why you flattened it, and
-  the full list of warnings;
+- the choices you made on the developer's behalf and what each changes, such as keeping a wrapper or facade over the
+  generated runtime: a refusal runs no hook, so a trail of refusals needs a `MachineObserver` or that wrapper;
+- for a migration, each composite state of the original and the sub-machine it became, or why you flattened it, or
+  that the original has none; and the full list of warnings;
 - any version mismatch from section 1, and anything you looked for in the references and did not find.

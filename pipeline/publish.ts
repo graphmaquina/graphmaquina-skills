@@ -27,6 +27,14 @@ export class PublishError extends Error {
   }
 }
 
+/** Thrown when a step fails after the skill was written; the message lists the commands that finish the publish. */
+export class PublishFailure extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PublishFailure';
+  }
+}
+
 function firstLine(error: unknown): string {
   const stderr: unknown = (error as { stderr?: unknown }).stderr;
   const text: string = typeof stderr === 'string' && stderr.trim() !== '' ? stderr : String(error);
@@ -70,6 +78,102 @@ function available(binary: string): boolean {
     return existsSync(binary);
   }
   return (process.env['PATH'] ?? '').split(delimiter).some((dir: string) => dir !== '' && existsSync(join(dir, binary)));
+}
+
+/** `text` as one shell word, quoted only when it needs it, so a printed command can be pasted. */
+function quote(text: string): string {
+  return /^[A-Za-z0-9_@%+=:,./-]+$/.test(text) ? text : `'${text.replaceAll("'", "'\\''")}'`;
+}
+
+function words(command: string, args: string[]): string {
+  return [command, ...args].map(quote).join(' ');
+}
+
+/** One command of the write phase; `display` is what a person pastes to run it by hand from the repository root. */
+type Step = { command: string; args: string[]; cwd: string; display: string; skipWhen?: () => boolean };
+
+function step(command: string, args: string[], cwd: string, display?: string): Step {
+  return { command, args, cwd, display: display ?? words(command, args) };
+}
+
+function zipPath(repo: string, version: string): string {
+  return join(repo, BUILD_DIR, `graphmaquina-skill-${version}.zip`);
+}
+
+/** The steps from building the zip to the GitHub release, shared by a publish and by the advice for an interrupted one. */
+function finishSteps(
+  options: PublishOptions,
+  release: 'create' | 'upload',
+  push: { main: boolean; tag: boolean },
+): Step[] {
+  const { repo, version, gh } = options;
+  const tag: string = `v${version}`;
+  const zip: string = zipPath(repo, version);
+  const parent: string = join(repo, SKILLS_PARENT);
+  const steps: Step[] = [
+    step(
+      'zip',
+      ['-r', '-X', '-q', zip, ZIP_ROOT],
+      parent,
+      `mkdir -p ${quote(join(repo, BUILD_DIR))} && rm -f ${quote(zip)} && cd ${quote(parent)} && ${words('zip', ['-r', '-X', '-q', zip, ZIP_ROOT])}`,
+    ),
+  ];
+  if (push.main) {
+    steps.push(step('git', ['push', REMOTE, BRANCH], repo));
+  }
+  if (push.tag) {
+    steps.push(step('git', ['push', REMOTE, tag], repo));
+  }
+  steps.push(
+    step(
+      gh,
+      release === 'upload'
+        ? ['release', 'upload', tag, zip, '--clobber', '--repo', SKILLS_REPOSITORY]
+        : [
+            'release',
+            'create',
+            tag,
+            zip,
+            '--repo',
+            SKILLS_REPOSITORY,
+            '--title',
+            `GraphMaquina skill ${version}`,
+            '--notes',
+            `Skill for GraphMaquina ${version}.`,
+          ],
+      repo,
+    ),
+  );
+  return steps;
+}
+
+function tagStep(options: PublishOptions): Step {
+  return step('git', ['tag', '-a', `v${options.version}`, '-m', `skill for GraphMaquina ${options.version}`], options.repo);
+}
+
+function listing(steps: Step[]): string {
+  return steps.map((each: Step) => `  ${each.display}`).join('\n');
+}
+
+/** Whether main has commits that origin does not (or origin has no main yet): the push of main is still to do. */
+function mainNeedsPush(repo: string): boolean {
+  try {
+    return run('git', ['rev-list', '--count', `refs/remotes/${REMOTE}/${BRANCH}..HEAD`], repo).trim() !== '0';
+  } catch {
+    return true;
+  }
+}
+
+/** The refusal for a version whose publish did not get as far as its release; lists the commands that finish it. */
+function interrupted(options: PublishOptions, why: string, tagExistsHere: boolean): PublishError {
+  const steps: Step[] = [
+    ...(tagExistsHere ? [] : [tagStep(options)]),
+    ...finishSteps(options, 'create', { main: mainNeedsPush(options.repo), tag: true }),
+  ];
+  return new PublishError(
+    `${why}. If an earlier publish was interrupted, finish it from ${options.repo} with:\n${listing(steps)}` +
+      (tagExistsHere ? `\nIf the tag is not from an interrupted publish, delete it with \`git tag -d v${options.version}\` and run publish again.` : ''),
+  );
 }
 
 /** Every check that must pass before anything is written; throws on the first refusal. */
@@ -117,6 +221,8 @@ function validate(options: PublishOptions): void {
 
   const skillFile: string = join(repo, SKILL_DIR, 'SKILL.md');
   const stamped: string | undefined = existsSync(skillFile) ? stampedVersion(readFileSync(skillFile, 'utf8')) : undefined;
+  const localTag: boolean = run('git', ['tag', '--list', tag], repo).trim() !== '';
+  const remoteTag: boolean = run('git', ['ls-remote', '--tags', REMOTE, `refs/tags/${tag}`], repo).trim() !== '';
   if (republish) {
     if (stamped === undefined) {
       throw new PublishError('--republish needs a published skill, and none is stamped in this repository; publish normally first');
@@ -124,18 +230,25 @@ function validate(options: PublishOptions): void {
     if (compareVersions(version, stamped) !== 0) {
       throw new PublishError(`--republish only accepts the stamped version ${stamped}, not ${version}`);
     }
+    if (!remoteTag) {
+      throw interrupted(
+        options,
+        `the tag ${tag} is not on ${REMOTE}, so ${version} has no GitHub release to update`,
+        localTag,
+      );
+    }
   } else {
     if (stamped !== undefined && compareVersions(version, stamped) < 0) {
       throw new PublishError(`version ${version} is lower than the stamped ${stamped}; ${BRANCH} must not go back`);
     }
-    if (
-      run('git', ['tag', '--list', tag], repo).trim() !== '' ||
-      run('git', ['ls-remote', '--tags', REMOTE, `refs/tags/${tag}`], repo).trim() !== ''
-    ) {
-      throw new PublishError(`the tag ${tag} already exists here or on ${REMOTE}; tags never move. Use --republish for a docs fix`);
+    if (remoteTag) {
+      throw new PublishError(`the tag ${tag} is already on ${REMOTE}; tags never move. Use --republish for a docs fix`);
+    }
+    if (localTag) {
+      throw interrupted(options, `the tag ${tag} exists only in this repository and not on ${REMOTE}`, true);
     }
     if (stamped !== undefined && compareVersions(version, stamped) === 0) {
-      throw new PublishError(`version ${version} is already the stamped one; use --republish for a docs fix`);
+      throw interrupted(options, `version ${version} is already the stamped one but has no tag`, false);
     }
   }
   if (!available('zip')) {
@@ -146,20 +259,30 @@ function validate(options: PublishOptions): void {
   }
 }
 
+function stagedChanges(repo: string): boolean {
+  try {
+    run('git', ['diff', '--cached', '--quiet'], repo);
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 /**
  * Publishes the skill for one library version (spec §5.6). Everything is checked before anything is written:
  * clean tree, branch main, an `origin` that main is not behind, the version and tag rules, the docs source and
  * every check on the generated skill. Then it writes the skill, commits, tags (normal publish), zips, pushes and
  * creates the GitHub release (or, with `republish`, uploads the new zip to the existing one).
  *
- * @throws PublishError when it refuses or a step fails
+ * @throws PublishError when it refuses before writing anything
+ * @throws PublishFailure when a step fails after writing; its message lists the commands that finish the publish
  * @throws CheckError when a check finds problems
  */
 export function publish(options: PublishOptions): void {
   const repo: string = resolve(options.repo);
-  const { version, republish, gh } = options;
-  const tag: string = `v${version}`;
-  validate({ ...options, repo });
+  const { version, republish } = options;
+  const resolved: PublishOptions = { ...options, repo };
+  validate(resolved);
 
   const source: DocsSource = readReleasedDocs(resolve(options.library), version);
   const files: Map<string, string> = generateSkill(source, readTemplate(repo));
@@ -168,45 +291,36 @@ export function publish(options: PublishOptions): void {
     throw new CheckError(problems);
   }
 
-  const stuck: string = 'The skill may already be written and committed here; fix the cause, then finish by hand.';
   writeSkill(join(repo, SKILL_DIR), files);
-  runOrRefuse('git', ['add', SKILL_DIR], repo, stuck);
-  const staged: boolean = (() => {
-    try {
-      run('git', ['diff', '--cached', '--quiet'], repo);
-      return false;
-    } catch {
-      return true;
+  const verb: string = republish ? 'Republish' : 'Publish';
+  const steps: Step[] = [
+    step('git', ['add', SKILL_DIR], repo),
+    {
+      ...step('git', ['commit', '-m', `${verb} the skill for GraphMaquina ${version}`], repo),
+      skipWhen: (): boolean => !stagedChanges(repo),
+    },
+    ...(republish ? [] : [tagStep(resolved)]),
+    ...finishSteps(resolved, republish ? 'upload' : 'create', { main: true, tag: !republish }),
+  ];
+  const skipped: Set<Step> = new Set();
+  for (const [index, each] of steps.entries()) {
+    if (each.skipWhen?.() === true) {
+      skipped.add(each);
+      continue;
     }
-  })();
-  if (staged) {
-    const verb: string = republish ? 'Republish' : 'Publish';
-    runOrRefuse('git', ['commit', '-m', `${verb} the skill for GraphMaquina ${version}`], repo, stuck);
+    if (each.command === 'zip') {
+      // the folder must exist and an older zip must not be updated in place
+      mkdirSync(join(repo, BUILD_DIR), { recursive: true });
+      rmSync(zipPath(repo, version), { force: true });
+    }
+    try {
+      run(each.command, each.args, each.cwd);
+    } catch (error: unknown) {
+      const remaining: Step[] = steps.slice(index).filter((later: Step) => !skipped.has(later));
+      throw new PublishFailure(
+        `\`${each.display}\` failed: ${firstLine(error)}\n` +
+          `The publish stopped here and what was done stays done. Fix the cause, then run from ${repo}:\n${listing(remaining)}`,
+      );
+    }
   }
-  if (!republish) {
-    runOrRefuse('git', ['tag', '-a', tag, '-m', `skill for GraphMaquina ${version}`], repo, stuck);
-  }
-  const zip: string = join(repo, BUILD_DIR, `graphmaquina-skill-${version}.zip`);
-  mkdirSync(join(repo, BUILD_DIR), { recursive: true });
-  rmSync(zip, { force: true });
-  runOrRefuse('zip', ['-r', '-X', '-q', zip, ZIP_ROOT], join(repo, SKILLS_PARENT), stuck);
-  runOrRefuse('git', ['push', REMOTE, BRANCH], repo, `${stuck} Then push the tag and create the release.`);
-  if (!republish) {
-    runOrRefuse('git', ['push', REMOTE, tag], repo, `${stuck} Then create the release.`);
-  }
-  const release: string[] = republish
-    ? ['release', 'upload', tag, zip, '--clobber', '--repo', SKILLS_REPOSITORY]
-    : [
-        'release',
-        'create',
-        tag,
-        zip,
-        '--repo',
-        SKILLS_REPOSITORY,
-        '--title',
-        `GraphMaquina skill ${version}`,
-        '--notes',
-        `Skill for GraphMaquina ${version}.`,
-      ];
-  runOrRefuse(gh, release, repo, 'The skill is pushed; create or update the GitHub release by hand with that command.');
 }

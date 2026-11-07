@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { compareVersions } from '../../pipeline/publish.ts';
@@ -35,10 +35,15 @@ function snapshot(s: Setup): string {
   ].join('|');
 }
 
-function expectRefused(s: Setup, result: CliResult, before: string, text: string): void {
+/** Runs `attempt`, which must exit 1 naming `text` and leave the repository exactly as the snapshot taken before it. */
+function expectRefused(s: Setup, attempt: () => CliResult, text: string): CliResult {
+  const before: string = snapshot(s);
+  const result: CliResult = attempt();
   expect(result.status).toBe(1);
   expect(result.stderr).toContain(text);
+  expect(result.stderr).not.toContain('publish failed');
   expect(snapshot(s)).toBe(before);
+  return result;
 }
 
 /** Publishes 2.0.4 normally, so the repository is stamped; returns the setup with a clean gh log. */
@@ -78,8 +83,7 @@ describe('publish', () => {
   it('refuses a dirty working tree', () => {
     const s: Setup = setup();
     put(s.repo, 'notes.txt', 'stray');
-    const before: string = snapshot(s);
-    expectRefused(s, publishCli(s), before, 'working tree is not clean');
+    expectRefused(s, () => publishCli(s), 'working tree is not clean');
     expect(existsSync(join(s.repo, SKILL))).toBe(false);
   });
 
@@ -93,24 +97,20 @@ describe('publish', () => {
     git(other, 'add', '-A');
     git(other, 'commit', '-q', '-m', 'news');
     git(other, 'push', '-q', 'origin', 'main');
-    const before: string = snapshot(s);
-    expectRefused(s, publishCli(s), before, 'behind origin/main');
+    expectRefused(s, () => publishCli(s), 'behind origin/main');
     expect(existsSync(join(s.repo, SKILL))).toBe(false);
   });
 
   it('refuses any branch other than main', () => {
     const s: Setup = setup();
     git(s.repo, 'switch', '-q', '-c', 'work');
-    const before: string = snapshot(s);
-    expectRefused(s, publishCli(s), before, 'current branch is work');
+    expectRefused(s, () => publishCli(s), 'current branch is work');
   });
 
   it('refuses, asking to add the remote, when there is no origin', () => {
     const s: Setup = setup();
     git(s.repo, 'remote', 'remove', 'origin');
-    const before: string = snapshot(s);
-    const result: CliResult = publishCli(s);
-    expectRefused(s, result, before, 'git remote add origin');
+    expectRefused(s, () => publishCli(s), 'git remote add origin');
     expect(existsSync(join(s.repo, SKILL))).toBe(false);
   });
 
@@ -122,34 +122,47 @@ describe('publish', () => {
     expect(git(s.origin, 'rev-parse', 'refs/heads/main')).toBe(git(s.repo, 'rev-parse', 'HEAD'));
   });
 
-  it('refuses an existing tag, local or only on origin', () => {
-    const local: Setup = setup();
-    git(local.repo, 'tag', 'v2.0.4');
-    expectRefused(local, publishCli(local), snapshot(local), 'v2.0.4 already exists');
-
-    const remote: Setup = setup();
+  it('refuses a tag that is already on origin', () => {
+    const s: Setup = setup();
     const other: string = temporary('other');
-    git(other, 'clone', '-q', remote.origin, '.');
+    git(other, 'clone', '-q', s.origin, '.');
     git(other, 'config', 'user.name', 'Test');
     git(other, 'config', 'user.email', 't@example.com');
     git(other, 'tag', 'v2.0.4');
     git(other, 'push', '-q', 'origin', 'v2.0.4');
-    expectRefused(remote, publishCli(remote), snapshot(remote), 'v2.0.4 already exists');
+    git(s.repo, 'fetch', '-q', 'origin'); // publish fetches too; doing it first keeps its tag out of the snapshot
+    expectRefused(s, () => publishCli(s), 'v2.0.4 is already on origin');
+  });
+
+  it('refuses a tag that exists only locally, listing the commands that finish the publish', () => {
+    const s: Setup = setup();
+    git(s.repo, 'tag', 'v2.0.4');
+    const result: CliResult = expectRefused(s, () => publishCli(s), 'v2.0.4 exists only in this repository');
+    expect(result.stderr).toContain('git push origin v2.0.4');
+    expect(result.stderr).toContain('release create v2.0.4');
+    expect(result.stderr).toContain('git tag -d v2.0.4');
+  });
+
+  it('refuses the stamped version without --republish when it has an origin tag', () => {
+    const s: Setup = published();
+    expectRefused(s, () => publishCli(s), 'Use --republish');
   });
 
   it('refuses a version lower than the stamped one', () => {
     const s: Setup = published();
-    const before: string = snapshot(s);
-    const result: CliResult = cli(s.repo, ['publish', '--library', s.lib, '--version', '2.0.3'], { GM_GH: s.gh.gh });
-    expectRefused(s, result, before, 'lower than the stamped 2.0.4');
+    expectRefused(
+      s,
+      () => cli(s.repo, ['publish', '--library', s.lib, '--version', '2.0.3'], { GM_GH: s.gh.gh }),
+      'lower than the stamped 2.0.4',
+    );
   });
 
   it('refuses the stamped version without --republish', () => {
     const s: Setup = published();
     git(s.repo, 'tag', '-d', 'v2.0.4');
     git(s.repo, 'push', '-q', 'origin', '--delete', 'v2.0.4');
-    const before: string = snapshot(s);
-    expectRefused(s, publishCli(s), before, 'use --republish');
+    const result: CliResult = expectRefused(s, () => publishCli(s), 'already the stamped one but has no tag');
+    expect(result.stderr).toContain('git tag -a v2.0.4');
   });
 
   it('refuses a problem in the generated skill before writing anything', () => {
@@ -158,9 +171,7 @@ describe('publish', () => {
     git(s.lib, 'add', '-A');
     git(s.lib, 'commit', '-q', '-m', 'docs');
     git(s.lib, 'tag', '-f', '-a', 'v2.0.4', '-m', 'v2.0.4');
-    const before: string = snapshot(s);
-    const result: CliResult = publishCli(s);
-    expectRefused(s, result, before, 'K-03');
+    expectRefused(s, () => publishCli(s), 'K-03');
     expect(existsSync(join(s.repo, SKILL))).toBe(false);
   });
 });
@@ -168,14 +179,16 @@ describe('publish', () => {
 describe('republish', () => {
   it('refuses a version other than the stamped one', () => {
     const s: Setup = published();
-    const before: string = snapshot(s);
-    const result: CliResult = cli(s.repo, ['publish', '--library', s.lib, '--version', '2.0.5', '--republish'], { GM_GH: s.gh.gh });
-    expectRefused(s, result, before, 'only accepts the stamped version 2.0.4');
+    expectRefused(
+      s,
+      () => cli(s.repo, ['publish', '--library', s.lib, '--version', '2.0.5', '--republish'], { GM_GH: s.gh.gh }),
+      'only accepts the stamped version 2.0.4',
+    );
   });
 
   it('refuses when nothing is stamped', () => {
     const s: Setup = setup();
-    expectRefused(s, publishCli(s, '--republish'), snapshot(s), 'publish normally first');
+    expectRefused(s, () => publishCli(s, '--republish'), 'publish normally first');
   });
 
   it('commits without a tag and uploads with --clobber', () => {
@@ -197,6 +210,69 @@ describe('republish', () => {
     expect(log).toContain('--clobber');
     expect(log).toContain('--repo graphmaquina/skills');
     expect(log.match(/release create/g)).toHaveLength(1);
+  });
+});
+
+describe('republish without a release', () => {
+  it('refuses when the tag is not on origin and nothing is written', () => {
+    const s: Setup = published();
+    git(s.origin, 'update-ref', '-d', 'refs/tags/v2.0.4');
+    const result: CliResult = expectRefused(
+      s,
+      () => publishCli(s, '--republish'),
+      'tag v2.0.4 is not on origin',
+    );
+    expect(result.stderr).toContain('git push origin v2.0.4');
+  });
+});
+
+describe('an interrupted publish', () => {
+  /** Origin accepts fetches but rejects every push. */
+  function rejectPushes(s: Setup): string {
+    const hook: string = join(s.origin, 'hooks', 'pre-receive');
+    writeFileSync(hook, '#!/bin/sh\nexit 1\n');
+    chmodSync(hook, 0o755);
+    return hook;
+  }
+
+  it('lists the exact commands, shell-quoted, and they finish the publish', () => {
+    const s: Setup = setup();
+    const hook: string = rejectPushes(s);
+    const result: CliResult = publishCli(s);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('publish failed');
+    expect(result.stderr).not.toContain('refused');
+    expect(git(s.repo, 'cat-file', '-t', 'v2.0.4').trim()).toBe('tag');
+    expect(ghLog(s)).toBe('');
+    const commands: string[] = result.stderr
+      .split('\n')
+      .filter((line: string) => line.startsWith('  '))
+      .map((line: string) => line.trim());
+    expect(commands[0]).toBe('git push origin main');
+    expect(commands[1]).toBe('git push origin v2.0.4');
+    expect(commands[2]).toContain("--title 'GraphMaquina skill 2.0.4' --notes 'Skill for GraphMaquina 2.0.4.'");
+    expect(commands).toHaveLength(3);
+
+    rmSync(hook);
+    for (const command of commands) {
+      execFileSync('sh', ['-c', command], { cwd: s.repo, stdio: 'pipe' });
+    }
+    expect(git(s.origin, 'tag', '--list')).toBe('v2.0.4\n');
+    expect(git(s.origin, 'rev-parse', 'refs/heads/main')).toBe(git(s.repo, 'rev-parse', 'HEAD'));
+    expect(ghLog(s)).toContain('release create v2.0.4');
+  });
+
+  it('is answered by the rerun with the local-only tag case and the same commands', () => {
+    const s: Setup = setup();
+    rejectPushes(s);
+    expect(publishCli(s).status).toBe(1);
+    const result: CliResult = expectRefused(s, () => publishCli(s), 'v2.0.4 exists only in this repository');
+    expect(result.stderr).toContain('git push origin main');
+    expect(result.stderr).toContain('git push origin v2.0.4');
+    expect(result.stderr).toContain('release create v2.0.4');
+    expect(result.stderr).toContain("'GraphMaquina skill 2.0.4'");
+    const republished: CliResult = expectRefused(s, () => publishCli(s, '--republish'), 'tag v2.0.4 is not on origin');
+    expect(republished.stderr).toContain('git push origin v2.0.4');
   });
 });
 

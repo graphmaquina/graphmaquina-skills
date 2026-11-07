@@ -4,7 +4,7 @@ import { parseArgs } from 'node:util';
 import { generateSkill, generatedProblems, readTemplate, repositoryProblems, writeSkill } from './generate.ts';
 import { CheckError, SKILL_DIR } from './model.ts';
 import type { Problem } from './model.ts';
-import { PublishError, publish } from './publish.ts';
+import { PublishError, PublishFailure, publish } from './publish.ts';
 import { stampedVersion } from './skill.ts';
 import { readReleasedDocs, readWorktreeDocs } from './source.ts';
 import type { DocsSource } from './source.ts';
@@ -206,6 +206,10 @@ function main(argv: string[]): number {
     }
     if (error instanceof PublishError) {
       console.error(`publish refused: ${error.message}`);
+      return FAILED;
+    }
+    if (error instanceof PublishFailure) {
+      console.error(`publish failed: ${error.message}`);
       return FAILED;
     }
     console.error(`error: ${(error as Error).message}`);

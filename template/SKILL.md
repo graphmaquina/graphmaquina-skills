@@ -33,8 +33,9 @@ Compare it with {{version}} and act:
 
 - The same version: use the references for everything.
 - Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents {{version}}, and suggest installing the
-  skill of their version, tag `v<version>` of `github.com/graphmaquina/skills`. Meanwhile, for anything that depends on
-  the API, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists instead of the references.
+  skill of their version, tag `v<version>` of `github.com/graphmaquina/skills`, when that tag exists. Meanwhile, for
+  anything that depends on the API, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
+  instead of the references.
 - 1.x, or a version whose `https://graphmaquina.dev/v/<version>/llms.txt` does not answer: tell the developer that this
   skill does not cover it, and do not guess its API.
 - No GraphMaquina in the project: go on only when the developer asked for a new GraphMaquina machine or a migration to
@@ -71,7 +72,9 @@ Each rule links the section that backs it. Read that section when the rule appli
 - The generator writes the vocabulary before javac runs, and the processor writes the runtime classes during
   compilation; for the quickstart, `TicketsGraph`, `TicketRefs` and `TicketActionsRefs`, then `TicketsRuntime` and
   `TicketMachinesRuntime`. Refer to them in source before they exist, and never create placeholder, empty or copied
-  versions of them. [Tickets.java](references/quickstart.md#ticketsjava),
+  versions of them. Before the first build, an editor or language server may flag them as missing: that is expected,
+  and the build resolves them. [Tickets.java](references/quickstart.md#ticketsjava),
+  [write the complete flow immediately](references/generation.md#you-can-also-write-the-complete-flow-immediately),
   [IDE workflow](references/generation.md#ide-workflow), [generated names](references/graph-model.md#generated-names)
 - Initialize the entity's state field when the entity is created: `initial` describes the graph and initializes no
   entity, and a null state aborts the call. The runtime calls the state setter at commit; action code never calls it.
@@ -81,9 +84,9 @@ Each rule links the section that backs it. Read that section when the rule appli
   guards: there is no first-guard-wins. Give each branch its own identifier, or route through an intermediate state
   whose automatic edges are tried in order. [Understand the graph](references/graph-model.md#understand-the-graph),
   [choice and junction](references/migrate-from-another-library.md#choice-and-junction-pseudo-states)
-- List the final states in `terminals` and, for every cycle, self-loops included, one of its states in `allowsCycle`,
-  which takes no state outside a cycle. Every state is reachable from `initial`, and every state that is not terminal
-  has an outgoing edge.
+- List the final states in `terminals`: a terminal has no outgoing edge at all, a self-loop included (`SG202`). For
+  every cycle, self-loops included, list one of its states in `allowsCycle`, which takes no state outside a cycle.
+  Every state is reachable from `initial`, and every state that is not terminal has an outgoing edge.
   [Structural rules](references/graph-model.md#structural-rules)
 - Give every state that is not terminal a `StatePolicy` with its `otherwise` reason (`SG701`), and word the refusal of
   one identifier with `Reject`. An edge and a `Reject` for the same key are `SG702`.
@@ -91,8 +94,10 @@ Each rule links the section that backs it. Read that section when the rule appli
 - An action that can return `ActionOutcome.failed(...)` needs a route: a recovery rule for its failure kind, or an
   `onFailure` edge from the same origin. Without one, the call throws `UnhandledFailureException` and commits nothing.
   [Domain failures](references/actions-and-failures.md#domain-failures)
-- A refused request (`Rejected`) and a routed failure (`Failed`) come back as an `Outcome`, never as an exception: the
-  caller reads `status()` or `code()`. [Handle transition outcomes](references/outcomes.md)
+- A refused request (`Rejected`) and a routed failure (`Failed`) come back to the caller as an `Outcome`, not as an
+  exception: the caller reads `status()` or `code()`. Inside a cascade, a refusal aborts the whole call instead.
+  [Handle transition outcomes](references/outcomes.md#handle-transition-outcomes),
+  [cascade a transition](references/coordination.md#cascade-a-transition)
 - An action moves another machine with `ctx.cascade(...)` or `ctx.cascadeAll(...)`, never by calling a facade on its
   own thread, which throws `ReentrantTransitionException`.
   [Cascade a transition](references/coordination.md#cascade-a-transition),
@@ -101,9 +106,9 @@ Each rule links the section that backs it. Read that section when the rule appli
   `NullPointerException` before the call starts. An event without data is an operation without an input.
   [Actions, guards and failure routes](references/actions-and-failures.md#actions-guards-and-failure-routes),
   [events with data](references/migrate-from-another-library.md#events-with-data)
-- Keep every GraphMaquina artifact on one version, set once in `graphmaquinaVersion` or `graphmaquina.version`: a
-  generator, processor or producer of another version fails with `SG602`. The generator and the processor are build
-  tools, never application runtime dependencies.
+- Keep every GraphMaquina artifact of every module on the same version, however the build declares it: a generator,
+  processor or producer of another version fails with `SG602`. The generator and the processor are build tools, never
+  application runtime dependencies.
   [Requirements and artifacts](references/guide.md#requirements-and-artifacts)
 - With Lombok, declare its annotation processor before GraphMaquina's.
   [Requirements and artifacts](references/guide.md#requirements-and-artifacts),
@@ -144,8 +149,9 @@ Done when the build passes with no `SG` diagnostic and the tests of section 8 pa
 2. Understand the graph from its declarations. To see it whole, read its `definition()` or export it, as
    [inspect graphs and export diagrams](references/graph-inspection.md) shows.
 3. Make the change and rebuild: renamed declarations regenerate their symbols, and javac names the handwritten
-   references to fix ([IDE workflow](references/generation.md#ide-workflow)). Keep the build and the tests green, and
-   test what changed as section 8 says.
+   references to fix ([IDE workflow](references/generation.md#ide-workflow)). Before adding a feature the machine does
+   not use yet, such as a recovery rule or an automatic edge, find its page as section 9 says. Keep the build and the
+   tests green, and test what changed as section 8 says.
 4. When the project has goldens or structural snapshots, regenerate them on purpose, as
    [reading and updating](references/testing.md#reading-and-updating) shows, review the diff, and tell the developer
    what changed in the graph.
@@ -166,7 +172,8 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
    For a concept without a direct equivalent, such as entry and exit actions, choice states,
    [history states](references/migration-patterns.md#history-states),
    [parallel regions](references/migration-patterns.md#parallel-regions), timers or deferred events, use the closest
-   pattern its entry gives; [migration patterns](references/migration-patterns.md) builds and tests each one.
+   pattern its entry gives. [Migration patterns](references/migration-patterns.md) builds and tests the patterns for
+   entry and exit actions, history states, parallel regions, timers and deferred events.
 3. Warn. For every concept the original uses, whatever its kind, relay each sentence of its "What changes" that
    applies and each note that changes what callers observe, naming the concept. For a concept without a direct
    equivalent, also say which alternative you used.
@@ -182,10 +189,13 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
 - A build failure without a code: [build troubleshooting](references/build-troubleshooting.md#troubleshooting) and
   [common build problems](references/diagnostics.md#common-build-problems).
 - An exception at runtime: [what to investigate](references/runtime-exceptions.md#what-to-investigate). A `Rejected` or
-  `Failed` outcome is no exception: [handle transition outcomes](references/outcomes.md).
-- Fix the cause, and keep every check in place: `-Werror`, the processor configuration, the failing test and the
-  generated files stay as they are. Change a lint option only where the references prescribe it, such as
-  `-Xlint:-processing` for a test compilation that runs the processor
+  `Failed` outcome is returned, not thrown, except that a refusal inside a cascade aborts the whole call:
+  [handle transition outcomes](references/outcomes.md#handle-transition-outcomes).
+- Fix the cause, and keep every check in place: keep `-Werror`, keep the processor enabled, keep the failing test, and
+  leave the generated files to the build. Change the processor configuration or a lint option only as the references
+  prescribe, such as declaring Lombok's processor first
+  ([add Lombok](references/installation.md#add-lombok-when-you-need-it)), adding `testAnnotationProcessor` for graphs
+  declared under the test sources, or `-Xlint:-processing` for a test compilation that runs the processor
   ([source sets](references/installation.md#source-sets-and-generator-selection)).
 
 ## 8. Tests

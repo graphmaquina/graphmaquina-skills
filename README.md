@@ -8,7 +8,8 @@ migrate, debug and test GraphMaquina machines in your Java project. The skill is
   rules, and works through a procedure for each task: a new machine, a change to an existing one, a migration from
   another library or a hand-written machine, a failing build, and the machine's tests.
 - `references/`: the GraphMaquina documentation of that release, one page per file, copied from the library's release
-  tag. The agent reads the documented API there instead of exploring the GraphMaquina jars.
+  tag, or from its `docs/v<version>` branch when that branch holds documentation fixes of the release. The agent reads
+  the documented API there instead of exploring the GraphMaquina jars.
 
 Its description asks the agent to use it in Java projects that depend on `io.github.graphmaquina`, or when you ask to
 migrate a state machine to GraphMaquina.
@@ -24,10 +25,21 @@ Replace `<version>` with the GraphMaquina version your project uses.
 /plugin install graphmaquina@graphmaquina
 ```
 
-This installs the skill of the latest GraphMaquina release, from `main`. To pin the skill of one release, add its tag
-to the first command: `/plugin marketplace add graphmaquina/skills#v<version>`. To update, run
-`/plugin marketplace update graphmaquina`, or turn on auto-update for the marketplace, which Claude Code leaves off for
-third-party marketplaces.
+`/plugin install` opens the plugin's details, where you choose the install scope. This installs the skill of the
+latest GraphMaquina release, from `main`. To pin the skill of one release, add its tag to the first command:
+`/plugin marketplace add graphmaquina/skills#v<version>`.
+
+To update the skill, use one of these:
+
+- in `/plugin`, open `graphmaquina` on the **Installed** tab and choose **Update now**;
+- in your shell, run `claude plugin update graphmaquina@graphmaquina`;
+- in `/plugin`, select the `graphmaquina` marketplace on the **Marketplaces** tab and choose **Update marketplace**,
+  which refreshes its listing and updates the plugins installed from it;
+- on that same tab, choose **Enable auto-update** for the marketplace. Claude Code leaves auto-update off for
+  third-party marketplaces.
+
+The [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins/install#keep-plugins-updated)
+describes each route.
 
 ### Other agents
 
@@ -48,8 +60,9 @@ Set `SKILLS=.claude/skills` instead for `.claude/skills/graphmaquina/`. Pick the
 ### claude.ai
 
 Download `graphmaquina-skill-<version>.zip` from the
-[GitHub release](https://github.com/graphmaquina/skills/releases) of `v<version>` and upload it to claude.ai as a
-skill.
+[GitHub release](https://github.com/graphmaquina/skills/releases) of `v<version>`, and add it to claude.ai as
+Anthropic's article [How to create custom skills](https://support.claude.com/en/articles/12512198-creating-custom-skills)
+describes. The zip already holds the skill folder, `graphmaquina/`, at its root, the layout that article asks for.
 
 ## Tested agents
 

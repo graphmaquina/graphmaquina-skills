@@ -10,6 +10,11 @@ export type UrlSpan = { start: number; end: number; url: string; line: number };
 
 const parser = unified().use(remarkParse).use(remarkGfm);
 type Root = ReturnType<typeof parser.parse>;
+
+/** The syntax tree of a Markdown source, parsed with the same grammar (CommonMark and GFM) as the link and heading readers. */
+export function parseMarkdown(markdown: string): Root {
+  return parser.parse(markdown);
+}
 const HTML_URL: RegExp = /(?<![\w-])(?:src|href)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
 const WHITESPACE: RegExp = /\s/;
 

@@ -170,8 +170,10 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
    [declare a sub-machine](references/composition.md#declare-a-sub-machine) and
    [sub-machines over the same entity](references/composition.md#sub-machines-over-the-same-entity), then bind each
    composite state to a sub-machine as [composite states](references/migrate-from-another-library.md#composite-states)
-   says. Flatten one only when your report says you flattened it and why a sub-machine does not fit. GraphMaquina
-   nests machines: the sentence "GraphMaquina has no nested states" is false, so never write it.
+   says. A parallel state with several regions is not one sub-machine, since a state holds at most one (`SG803`):
+   translate it with the parallel regions pattern of step 3. Flatten a composite state only when your report says you
+   flattened it and why a sub-machine does not fit. GraphMaquina nests machines: never tell the developer that nested
+   states are missing or impossible.
 3. Translate every other concept with its entry. For a concept without a direct equivalent, such as entry and exit
    actions, choice states, [history states](references/migration-patterns.md#history-states) (inside a sub-machine:
    [restore a sub-machine](references/migration-patterns.md#restore-a-sub-machine)),

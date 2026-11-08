@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Code generation and IDE setup
 
@@ -24,7 +24,7 @@ There are three kinds of API:
 | `TicketsGraph.Definition`, `TicketsGraph.Transition`, `TicketsGraph.StatePolicy`, `TicketRefs`, `TicketActionsRefs` | The pre-compilation generator, from your declarations | After the generation task/phase, before application compilation |
 | `TicketsRuntime`, `TicketMachinesRuntime` | The annotation processor, from the validated flow | During application compilation |
 
-![Original Java declarations enter a syntax-only generator, which emits typed vocabulary. javac then compiles original source and generated annotations together and produces Runtime implementations.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/annotation-bootstrap.svg)
+![Original Java declarations enter a syntax-only generator, which emits typed vocabulary. javac then compiles original source and generated annotations together and produces Runtime implementations.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/annotation-bootstrap.svg)
 
 The generator creates the annotation types; you choose the flow by using those annotations. It does not
 infer transitions from action method bodies, and it never invents a transition identifier from a name. For
@@ -152,14 +152,15 @@ sequenceDiagram
     Codegen->>Outputs: promote the index to exports.json and seal the owned outputs
 ```
 
-The source-reading step uses `JavacTask.parse()` with annotation processing disabled; it does not type-check
-the original application or require its generated annotation classes. It parses the original sources at the
-compilation's release and in its source encoding, which the build adapters pass in the request, and it writes
-the generated sources in that encoding too. It resolves the headers and exported members needed for
-generation, then emits vocabulary plus a manifest. The processor verifies that the manifest matches the
-declarations javac accepted, resolves bindings, checks the graph and emits facades, in ASCII only: every other
-character of a name or a text is written as a `\uXXXX` escape, so javac writes them alike in any encoding.
-Completion publishes the validated export index and records ownership of generated outputs.
+The source-reading step uses `JavacTask.parse()` with annotation processing disabled; it does not type-check the
+original application or require its generated annotation classes. It parses the original sources at the compilation's
+release and in its source encoding, which the build adapters pass in the request, and it writes the generated sources
+in that encoding too. It resolves the headers and exported members needed for generation, reading the names they
+write as javac reads them at that release, through a single-module-import declaration of a JDK module such as
+`import module java.base;` (Java 25) too, then emits vocabulary plus a manifest. The processor verifies that the
+manifest matches the declarations javac accepted, resolves bindings, checks the graph and emits facades, in ASCII
+only: every other character of a name or a text is written as a `\uXXXX` escape, so javac writes them alike in any
+encoding. Completion publishes the validated export index and records ownership of generated outputs.
 
 ### Generated files
 

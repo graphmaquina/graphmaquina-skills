@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Check an operation before you call it
 
@@ -52,7 +52,7 @@ identifier of the machine's catalogue.
 A check is an abstract method of the facade that carries the generated `Check`. Its `id` names the identifier of one
 of the facade's operations, and the method repeats that operation's parameters, with `Eligibility<E, S, T>` as its
 result. The shop's
-[Orders](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/main/java/io/github/graphmaquina/example/order/Orders.java)
+[Orders](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/main/java/io/github/graphmaquina/example/order/Orders.java)
 declares a check of `retry(Order order)`, which takes no input:
 
 ```java
@@ -77,7 +77,7 @@ argument with a `NullPointerException` that names the parameter, as the operatio
 `StateMachine`'s `eligibility(entity, id)`, or `eligibility(entity, id, input)` for an operation that takes an input.
 
 The shop's
-[EligibilityTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/EligibilityTest.java)
+[EligibilityTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/EligibilityTest.java)
 asks these checks. `RETRY` leaves `PAYMENT_DECLINED` under the guard `retryBudgetLeft`, which passes while the order
 has made fewer than three charge attempts. After one declined charge, the order may retry:
 
@@ -232,7 +232,7 @@ static ButtonState buttonFor(
 
 ## What a check runs and never does
 
-![The decisions of an operation, with a band for an eligibility check: it runs the binding check, the edge lookup, the reserved exit and the guards, in that order, answers Ineligible with the kind of the first refusal, and answers Eligible once every guard passed, before the action. The action and what follows it run in a call only.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/operation-decisions.svg)
+![The decisions of an operation, with a band for an eligibility check: it runs the binding check, the edge lookup, the reserved exit and the guards, in that order, answers Ineligible with the kind of the first refusal, and answers Eligible once every guard passed, before the action. The action and what follows it run in a call only.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/operation-decisions.svg)
 
 Whatever it answers or throws, a check:
 
@@ -252,7 +252,7 @@ prevents nor undoes what these functions do, so keep them free of side effects. 
 remote service asks it for every check. A context that a guard keeps is stale once the check ends.
 
 In the shop's
-[EligibilityTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/EligibilityTest.java),
+[EligibilityTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/EligibilityTest.java),
 checking `PAY`, whose action charges the gateway and counts the attempt, and `RETRY`, with the same `orderIn`,
 charges nothing, counts nothing and moves nothing; the last call shows that the gateway does record a charge when one
 is made:
@@ -296,7 +296,7 @@ the same through the facade.
 ## Sub-machines
 
 A check refuses the child of a sub-machine where `execute` would, through a facade too. The billing's
-[Payments](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/main/java/io/github/graphmaquina/example/billing/Payments.java)
+[Payments](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/main/java/io/github/graphmaquina/example/billing/Payments.java)
 declares a check of `capture`:
 
 ```java
@@ -304,7 +304,7 @@ declares a check of `capture`:
 Eligibility<Payment, PaymentStatus, PaymentTransition> canCapture(Payment payment);
 ```
 
-[BookingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/billing/BookingFlowTest.java)
+[BookingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/billing/BookingFlowTest.java)
 checks a deposit while its booking holds it in `DEPOSIT`, and again once the booking is cancelled, when no parent
 holds it: the check says so before it looks for an edge, as the call does.
 

@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Commit, hooks, observers and persistence
 
@@ -12,7 +12,7 @@
 ![Root actions, cascades and sub-machines stage changes in a shared unit of work. Commit checks original states and
 writes final states; hooks, independent watch reactions and the automatic steps of the entities the commit moved
 follow, then the observers learn how the call ended, and the call returns its outcome with its frozen flow, its
-reactions and its automatic steps.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/commit-lifecycle.svg)
+reactions and its automatic steps.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/commit-lifecycle.svg)
 
 Observers are told that the call starts before step 1. A call that completes tells them in step 9; one that throws tells
 them before the exception leaves the call.

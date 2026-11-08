@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Compose machines across modules and JARs
 
@@ -11,9 +11,9 @@ coordination.
 
 This page follows two scenarios. A producer publishes a payment machine and an item machine and knows nothing of its
 consumers. A consumer binds a payment as the deposit of a booking, and has an order watch its items. The
-[scenario sources](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-processor/src/test/resources/cross-module) are compiled apart, the consumer
+[scenario sources](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-processor/src/test/resources/cross-module) are compiled apart, the consumer
 against the producer's jar alone, and run by
-[CrossModuleCompositionTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-processor/src/test/java/io/github/graphmaquina/processor/CrossModuleCompositionTest.java);
+[CrossModuleCompositionTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-processor/src/test/java/io/github/graphmaquina/processor/CrossModuleCompositionTest.java);
 every Java block below is a verbatim copy of them.
 
 ## Contents

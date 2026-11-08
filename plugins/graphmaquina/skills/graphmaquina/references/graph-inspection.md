@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Inspect graphs and export diagrams
 
@@ -238,12 +238,12 @@ resources checks visual output only; keep those tests separate from contract and
 [testing guide](testing.md#goldens-and-structural-snapshots) describes both APIs and their Gradle and
 Maven update configuration.
 
-[The illustrated ticket workflow](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/ticket-workflow.svg) summarizes the quickstart's edges. The
+[The illustrated ticket workflow](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/ticket-workflow.svg) summarizes the quickstart's edges. The
 exporter produces its own labels from the definition. The repository keeps exact expected exports in
-[the example's golden diagrams](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/resources/golden).
+[the example's golden diagrams](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/resources/golden).
 
 The illustrations in this guide are maintained separately from the Graphviz exporter. Their accessible SVG
-sources, with a table of what each one shows, are in [docs/images](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/README.md).
+sources, with a table of what each one shows, are in [docs/images](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/README.md).
 
 ---
 

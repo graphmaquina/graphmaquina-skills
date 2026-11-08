@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Actions, guards and failure routes
 
@@ -138,7 +138,7 @@ one of 400 edges without actions, 803 calls, compiled, and one of 600 edges fail
 to a few hundred calls.
 
 The full action implementation is in
-[OrderActions.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/main/java/io/github/graphmaquina/example/order/OrderActions.java).
+[OrderActions.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/main/java/io/github/graphmaquina/example/order/OrderActions.java).
 
 ## Recover by failure kind and exception type
 

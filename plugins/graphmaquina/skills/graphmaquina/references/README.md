@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # GraphMaquina documentation
 
@@ -129,4 +129,4 @@ time; each page links the next one in that order.
 
 | Page | What it covers |
 | --- | --- |
-| [Documentation illustrations](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/README.md) | The SVG illustrations the pages embed, and what each one shows |
+| [Documentation illustrations](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/README.md) | The SVG illustrations the pages embed, and what each one shows |

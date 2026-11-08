@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # The call's flow
 
@@ -16,7 +16,7 @@ flow and cascades CANCEL to the items, whose steps put their restocks; each writ
 the trail lists each hop with its instant. The commit writes the states, the hooks apply the restocks, and the
 caller receives the flow frozen in the outcome. A failure route drops what its step took and wrote, while earlier
 writes stay. When an item is PACKED, its element aborts and is dropped, the cascade aborts the call, nothing
-commits, and the failure's flow keeps the other writes and ends its trail with Failed.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/call-flow.svg)
+commits, and the failure's flow keeps the other writes and ends its trail with Failed.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/call-flow.svg)
 
 The same cancellation as a sequence, for one item, with the shop's actions and hook:
 
@@ -43,7 +43,7 @@ and gets a `FlowView`, without `put` or `remove`. A hook that takes a `CommitCon
 `commit.flow()`, a `FlowContext`, once the call committed; a hook that takes the entity alone does not see it. A value
 lives under a `FlowKey`, a name and a class: two keys with the same name and class read and write the same value.
 Declare each key once, where every step that uses it can see it, as the shop does in
-[ShopFlow.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/main/java/io/github/graphmaquina/example/ShopFlow.java):
+[ShopFlow.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/main/java/io/github/graphmaquina/example/ShopFlow.java):
 
 ```java
 public final class ShopFlow {
@@ -165,7 +165,7 @@ Hooks run in the order of the committed hops, so the order lists its items in th
 When the step of an item aborts, for instance because the item is `PACKED` and has no `CANCEL` edge, the `COLLECT`
 cascade aborts the call once it tried every item: nothing commits, no hook runs, and no item gets a batch, although
 the flow the failure hands out holds the restock of every item whose step completed.
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) asserts the
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) asserts the
 cancellation that commits and the one that aborts. When an action fails after its put and its step takes a failure
 route, the route drops the write, and the hook that runs for the recovering hop finds nothing. Had `restock` set the
 batch on the item itself, the item would keep it in both cases.
@@ -251,7 +251,7 @@ Since the root machine decides and every machine of the set records, every call 
 trail, the peers it cascades to and the exits of sub-machines its steps run included, and so do each watch reaction
 and each automatic attempt, whose machine is one of the set. The set has no variant for one of its machines: a registry
 built with `StateMachines.Builder`, as above, chooses machine by machine. The shop's
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) builds its set
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) builds its set
 with `recordTrail()`, and reads in the trail of a cancellation the order's hop, then the hop of each item.
 
 `flow().trail()` lists `FlowEntry` values, in the order the call took them, cascaded steps, the exits of sub-machines

@@ -1,10 +1,10 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # GraphMaquina
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.graphmaquina/graphmaquina-core)](https://central.sonatype.com/artifact/io.github.graphmaquina/graphmaquina-core)
 
-![GraphMaquina: typed graphs and predictable transitions, illustrated by a ticket that goes from OPEN through REVIEW to DONE, or from OPEN to FAILED through the failure route of SUBMIT.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/graphmaquina-overview.svg)
+![GraphMaquina: typed graphs and predictable transitions, illustrated by a ticket that goes from OPEN through REVIEW to DONE, or from OPEN to FAILED through the failure route of SUBMIT.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/graphmaquina-overview.svg)
 
 Typed, graph-based state machines for Java 21. Declare the transitions your domain allows as identified
 edges, give every state a reason for refusing the rest, and let the build validate the whole graph before the
@@ -58,7 +58,7 @@ for the responsibilities that remain with your application.
 
 The build and runtime have separate jobs:
 
-![Build pipeline: declare Java entities and machines, generate vocabulary and a manifest, compile and validate facades, then publish accepted exports. At runtime the application uses the typed facade and core.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/build-pipeline.svg)
+![Build pipeline: declare Java entities and machines, generate vocabulary and a manifest, compile and validate facades, then publish accepted exports. At runtime the application uses the typed facade and core.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/build-pipeline.svg)
 
 At runtime, one call travels through these parts, all in your process:
 
@@ -80,22 +80,22 @@ examples. Each illustration is an SVG: open it to inspect labels at full size.
 
 | Question | Diagram | Read next |
 | --- | --- | --- |
-| What does GraphMaquina do? | [Typed graphs, predictable transitions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/graphmaquina-overview.svg) | [What GraphMaquina provides](#what-graphmaquina-provides) |
-| What runs at build time, and what at runtime? | [From declarations to a running machine](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/build-pipeline.svg) | [Generation lifecycle](generation.md#generation-lifecycle-and-ide-setup) |
-| How can my source use annotations that do not exist yet? | [Source → vocabulary → compilation](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/annotation-bootstrap.svg) | [First generation](generation.md#how-your-flow-annotations-are-generated) |
-| Which transitions are permitted? | [The ticket graph](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/ticket-workflow.svg) | [Understand the graph](graph-model.md#understand-the-graph) |
-| Why did an operation apply, reject or fail? | [Edge selection, outcomes and where a check stops](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/operation-decisions.svg) | [Outcomes](outcomes.md) |
-| Which thread waits for my service? | [Direct call and async submission](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/async-execution.svg) | [Calling styles](async.md#choose-the-calling-style) |
-| How much time is left for an action? | [Root and action deadline timeline](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/async-deadlines.svg) | [Deadline rules](async-deadlines.md#deadline-rules) |
-| What happens if the service finishes too late? | [Timeout and late completion](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/async-late-completion.svg) | [Cancellation](async-deadlines.md#timeout-cancellation-and-late-completion) |
-| What can I safely use in a callback? | [Context and thread boundary](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/async-context-boundary.svg) | [Context ownership](async-deadlines.md#contexts-and-completion-callbacks) |
-| Does a completed future mean the operation succeeded? | [Future result branches](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/async-future-results.svg) | [Result handling](async.md#read-the-future-and-domain-result) |
-| Do both machines commit together? | [Cascade versus watch](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/cascade-vs-watch.svg) | [Machine coordination](coordination.md#read-peers-and-cascade-transitions) |
-| When does an owner react to its peers? | [Watch reactions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/watch-reactions.svg) | [Watch other machines](coordination.md#watch-other-machines) |
-| When does an entity move on by itself? | [Automatic chain](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/automatic-chain.svg) | [Automatic transitions](automatic-transitions.md) |
-| How does a state hold a whole machine? | [Sub-machine binding](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/submachine-binding.svg) | [Compose machines](composition.md) |
-| When do hooks, reactions and automatic steps run? | [Commit lifecycle](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/commit-lifecycle.svg) | [Commit and hooks](commit-and-persistence.md#commit-hooks-and-observers) |
-| What does a call share between its steps, and what does its caller get back? | [One call's flow](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/docs/images/call-flow.svg) | [The call's flow](call-flow.md) |
+| What does GraphMaquina do? | [Typed graphs, predictable transitions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/graphmaquina-overview.svg) | [What GraphMaquina provides](#what-graphmaquina-provides) |
+| What runs at build time, and what at runtime? | [From declarations to a running machine](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/build-pipeline.svg) | [Generation lifecycle](generation.md#generation-lifecycle-and-ide-setup) |
+| How can my source use annotations that do not exist yet? | [Source → vocabulary → compilation](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/annotation-bootstrap.svg) | [First generation](generation.md#how-your-flow-annotations-are-generated) |
+| Which transitions are permitted? | [The ticket graph](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/ticket-workflow.svg) | [Understand the graph](graph-model.md#understand-the-graph) |
+| Why did an operation apply, reject or fail? | [Edge selection, outcomes and where a check stops](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/operation-decisions.svg) | [Outcomes](outcomes.md) |
+| Which thread waits for my service? | [Direct call and async submission](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-execution.svg) | [Calling styles](async.md#choose-the-calling-style) |
+| How much time is left for an action? | [Root and action deadline timeline](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-deadlines.svg) | [Deadline rules](async-deadlines.md#deadline-rules) |
+| What happens if the service finishes too late? | [Timeout and late completion](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-late-completion.svg) | [Cancellation](async-deadlines.md#timeout-cancellation-and-late-completion) |
+| What can I safely use in a callback? | [Context and thread boundary](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-context-boundary.svg) | [Context ownership](async-deadlines.md#contexts-and-completion-callbacks) |
+| Does a completed future mean the operation succeeded? | [Future result branches](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-future-results.svg) | [Result handling](async.md#read-the-future-and-domain-result) |
+| Do both machines commit together? | [Cascade versus watch](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/cascade-vs-watch.svg) | [Machine coordination](coordination.md#read-peers-and-cascade-transitions) |
+| When does an owner react to its peers? | [Watch reactions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/watch-reactions.svg) | [Watch other machines](coordination.md#watch-other-machines) |
+| When does an entity move on by itself? | [Automatic chain](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/automatic-chain.svg) | [Automatic transitions](automatic-transitions.md) |
+| How does a state hold a whole machine? | [Sub-machine binding](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/submachine-binding.svg) | [Compose machines](composition.md) |
+| When do hooks, reactions and automatic steps run? | [Commit lifecycle](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/commit-lifecycle.svg) | [Commit and hooks](commit-and-persistence.md#commit-hooks-and-observers) |
+| What does a call share between its steps, and what does its caller get back? | [One call's flow](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/call-flow.svg) | [The call's flow](call-flow.md) |
 
 ## Requirements and artifacts
 
@@ -142,17 +142,17 @@ The repository's build checks that the examples of these pages still compile and
 
 | Check | What it verifies |
 | --- | --- |
-| Quickstart | [ReadmeQuickstartTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-test/src/test/java/consumer/ReadmeQuickstartTest.java) copies the Gradle scripts of [installation](installation.md#configure-gradle), pointed at artifacts the build stages locally, and the Ticket sources and test of the [quickstart](quickstart.md) into an external Gradle project, compiles them with strict lint, runs `App`, checks that the output contains `All ticket scenarios passed.` and checks the `TicketsTest` report. It does not run the Maven configuration. |
-| Guide fragments | [GuideOutcomeFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-test/src/test/java/consumer/GuideOutcomeFragmentsTest.java) compiles the Java blocks of [outcomes](outcomes.md), of [recovery rules](actions-and-failures.md#recover-by-failure-kind-and-exception-type), of [composition](composition.md) and of [the call's flow](call-flow.md), plus the async completion callback and the observer example, against the staged core jar. |
-| Quotes of the example module | [GuideCopiesTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/GuideCopiesTest.java) checks that the testing pages quote the shop's tests verbatim, that [the call's flow](call-flow.md) quotes the shop's code, that [composition](composition.md) quotes `SameEntitySubmachineTest`, that [eligibility](eligibility.md) quotes the checks of the shop and the billing and the tests that ask them, and that every Java block of [automatic transitions](automatic-transitions.md) quotes the onboarding. |
-| Testing samples | [TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) compiles and runs the samples of [the recovery, sub-machine and flow testing page](testing-advanced.md) against the staged core and test jars. |
+| Quickstart | [ReadmeQuickstartTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/ReadmeQuickstartTest.java) copies the Gradle scripts of [installation](installation.md#configure-gradle), pointed at artifacts the build stages locally, and the Ticket sources and test of the [quickstart](quickstart.md) into an external Gradle project, compiles them with strict lint, runs `App`, checks that the output contains `All ticket scenarios passed.` and checks the `TicketsTest` report. It does not run the Maven configuration. |
+| Guide fragments | [GuideOutcomeFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/GuideOutcomeFragmentsTest.java) compiles the Java blocks of [outcomes](outcomes.md), of [recovery rules](actions-and-failures.md#recover-by-failure-kind-and-exception-type), of [composition](composition.md) and of [the call's flow](call-flow.md), plus the async completion callback and the observer example, against the staged core jar. |
+| Quotes of the example module | [GuideCopiesTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/GuideCopiesTest.java) checks that the testing pages quote the shop's tests verbatim, that [the call's flow](call-flow.md) quotes the shop's code, that [composition](composition.md) quotes `SameEntitySubmachineTest`, that [eligibility](eligibility.md) quotes the checks of the shop and the billing and the tests that ask them, and that every Java block of [automatic transitions](automatic-transitions.md) quotes the onboarding. |
+| Testing samples | [TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) compiles and runs the samples of [the recovery, sub-machine and flow testing page](testing-advanced.md) against the staged core and test jars. |
 | Maven quickstart | The [Maven configuration](installation.md#configure-maven) and the quickstart's sources were built with `mvn clean verify` and `App` was run, once by hand, with Maven 3.9.12 on JDK 21, against artifacts built from this repository. No automated check covers it. |
 | Async example | [The runnable async ticket](async.md#runnable-async-ticket-example) was built and `AsyncApp` was run, once by hand, through Gradle and through Maven against artifacts built from this repository, and printed the output documented below it. No automated check covers it. |
 | IDE import | IntelliJ IDEA 2026.2.3 imported the quickstart's Gradle project once, headless and then in a running IDE queried through its MCP server: it registered the generated vocabulary as a source root and the processor's output as a generated source root, resolved references into both, and renamed a binding method as [the IDE workflow](generation.md#ide-workflow) describes. Code completion was not exercised. No automated check covers it. |
 
 ## License
 
-GraphMaquina is licensed under Apache License 2.0. See [LICENSE](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/LICENSE) and [NOTICE](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/NOTICE).
+GraphMaquina is licensed under Apache License 2.0. See [LICENSE](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/LICENSE) and [NOTICE](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/NOTICE).
 
 The code emitted into a consuming project by this project's generator and annotation processor belongs to
 that project. The repository's license notice states that its license does not extend to that generated output.

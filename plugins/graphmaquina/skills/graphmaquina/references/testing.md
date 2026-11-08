@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.4 documentation, copied from tag v2.0.4 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Testing GraphMaquina machines
 
@@ -64,7 +64,7 @@ The machines under test are built exactly as the application builds them: a real
 and test doubles only where the domain reaches outside the process. A `TransitionRecorder` is a
 `MachineObserver`, so it is installed the way any observer is, and `recordTrail()` makes every call of the set
 record its [trail](testing-advanced.md#the-calls-flow-and-its-trail). From
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
 
 ```java
 final FakeGateway gateway = new FakeGateway();
@@ -250,7 +250,7 @@ order they are tried in, at `/automaticOrder/<state>/count` and `/automaticOrder
 `PublishedArtifactSmokeTest` compiles and runs a semantic consumer after removing every graphic-export class
 from the core JAR; assertions, state observation and structural snapshots must still work.
 
-From [DiagramsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/DiagramsTest.java):
+From [DiagramsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/DiagramsTest.java):
 
 ```java
 @Test
@@ -259,7 +259,7 @@ void orderDiagramMatchesGolden() {
 }
 ```
 
-From [GraphContractsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.4/graphmaquina-example/src/test/java/io/github/graphmaquina/example/GraphContractsTest.java):
+From [GraphContractsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/GraphContractsTest.java):
 
 ```java
 @Test

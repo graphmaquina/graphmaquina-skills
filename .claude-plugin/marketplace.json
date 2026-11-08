@@ -1,5 +1,6 @@
 {
   "name": "graphmaquina",
+  "description": "The GraphMaquina Agent Skill: create, change, migrate, debug and test GraphMaquina state machines in Java projects.",
   "owner": {
     "name": "GraphMaquina"
   },

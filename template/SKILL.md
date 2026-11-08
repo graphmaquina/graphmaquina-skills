@@ -33,7 +33,7 @@ Compare it with {{version}} and act:
 
 - The same version: use the references for everything.
 - Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents {{version}}, and suggest installing the
-  skill of their version, tag `v<version>` of `github.com/graphmaquina/skills`, when that tag exists. Meanwhile, for
+  skill of their version, tag `v<version>` of `github.com/graphmaquina/graphmaquina-skills`, when that tag exists. Meanwhile, for
   anything that depends on the API, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
   instead of the references.
 - 1.x, or a version whose `https://graphmaquina.dev/v/<version>/llms.txt` does not answer: tell the developer that this

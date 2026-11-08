@@ -16,7 +16,7 @@ export class CheckError extends Error {
 export const SKILL_DIR: string = 'plugins/graphmaquina/skills/graphmaquina';
 
 /** The GitHub repository that publishes the skill. */
-export const SKILLS_REPOSITORY: string = 'graphmaquina/skills';
+export const SKILLS_REPOSITORY: string = 'graphmaquina/graphmaquina-skills';
 
 /** The GitHub repository of the library whose docs the skill copies. */
 export const LIBRARY_REPOSITORY: string = 'graphmaquina/graphmaquina';

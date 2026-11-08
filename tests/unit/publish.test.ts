@@ -67,7 +67,7 @@ describe('publish', () => {
     const log: string = ghLog(s);
     expect(log).toContain('release create v2.0.4');
     expect(log).toContain('graphmaquina-skill-2.0.4.zip');
-    expect(log).toContain('--repo graphmaquina/skills');
+    expect(log).toContain('--repo graphmaquina/graphmaquina-skills');
     expect(log).toContain('--title GraphMaquina skill 2.0.4');
     expect(log).toContain('--notes Skill for GraphMaquina 2.0.4.');
   });
@@ -223,7 +223,7 @@ describe('republish', () => {
     const log: string = ghLog(s);
     expect(log).toContain('release upload v2.0.4');
     expect(log).toContain('--clobber');
-    expect(log).toContain('--repo graphmaquina/skills');
+    expect(log).toContain('--repo graphmaquina/graphmaquina-skills');
     expect(log.match(/release create/g)).toHaveLength(1);
   });
 });
@@ -323,12 +323,12 @@ describe('a tag on origin without its GitHub release', () => {
   it('refuses the rerun with the gh release create that finishes it, and nothing is written', () => {
     const s: Setup = stoppedBeforeRelease();
     const result: CliResult = expectRefused(s, () => publishCli(s), 'v2.0.4 is already on origin but has no GitHub release');
-    expect(result.stderr).toContain('release view v2.0.4 --repo graphmaquina/skills` failed: release not found');
+    expect(result.stderr).toContain('release view v2.0.4 --repo graphmaquina/graphmaquina-skills` failed: release not found');
     expect(result.stderr).not.toContain('--republish');
     const listed: string[] = commands(result);
     expect(listed).toHaveLength(1);
     expect(listed[0]).toContain('release create v2.0.4');
-    expect(listed[0]).toContain('graphmaquina-skill-2.0.4.zip --repo graphmaquina/skills');
+    expect(listed[0]).toContain('graphmaquina-skill-2.0.4.zip --repo graphmaquina/graphmaquina-skills');
     expect(listed[0]).toContain("--title 'GraphMaquina skill 2.0.4' --notes 'Skill for GraphMaquina 2.0.4.'");
 
     runAll(s, listed);

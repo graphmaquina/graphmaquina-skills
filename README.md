@@ -21,13 +21,13 @@ Replace `<version>` with the GraphMaquina version your project uses.
 ### Claude Code
 
 ```text
-/plugin marketplace add graphmaquina/skills
+/plugin marketplace add graphmaquina/graphmaquina-skills
 /plugin install graphmaquina@graphmaquina
 ```
 
 `/plugin install` opens the plugin's details, where you choose the install scope. This installs the skill of the
 latest GraphMaquina release, from `main`. To pin the skill of one release, add its tag to the first command:
-`/plugin marketplace add graphmaquina/skills#v<version>`.
+`/plugin marketplace add graphmaquina/graphmaquina-skills#v<version>`.
 
 To update the skill, use one of these:
 
@@ -47,7 +47,7 @@ Copy the folder `plugins/graphmaquina/skills/graphmaquina/` of the tag `v<versio
 From the project root, this line puts it in `.agents/skills/graphmaquina/`, replacing an older copy:
 
 ```bash
-SKILLS=.agents/skills; git clone --depth 1 --branch v<version> https://github.com/graphmaquina/skills .graphmaquina-skills && rm -rf "$SKILLS/graphmaquina" && mkdir -p "$SKILLS" && cp -R .graphmaquina-skills/plugins/graphmaquina/skills/graphmaquina "$SKILLS/"; rm -rf .graphmaquina-skills
+SKILLS=.agents/skills; git clone --depth 1 --branch v<version> https://github.com/graphmaquina/graphmaquina-skills .graphmaquina-skills && rm -rf "$SKILLS/graphmaquina" && mkdir -p "$SKILLS" && cp -R .graphmaquina-skills/plugins/graphmaquina/skills/graphmaquina "$SKILLS/"; rm -rf .graphmaquina-skills
 ```
 
 Set `SKILLS=.claude/skills` instead for `.claude/skills/graphmaquina/`. Pick the folder your agent reads:
@@ -60,7 +60,7 @@ Set `SKILLS=.claude/skills` instead for `.claude/skills/graphmaquina/`. Pick the
 ### claude.ai
 
 Download `graphmaquina-skill-<version>.zip` from the
-[GitHub release](https://github.com/graphmaquina/skills/releases) of `v<version>`, and add it to claude.ai as
+[GitHub release](https://github.com/graphmaquina/graphmaquina-skills/releases) of `v<version>`, and add it to claude.ai as
 Anthropic's article [How to create custom skills](https://support.claude.com/en/articles/12512198-creating-custom-skills)
 describes. The zip already holds the skill folder, `graphmaquina/`, at its root, the layout that article asks for.
 

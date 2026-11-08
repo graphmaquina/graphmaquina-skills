@@ -91,6 +91,10 @@ Each rule links the section that backs it. Read that section when the rule appli
 - Give every state that is not terminal a `StatePolicy` with its `otherwise` reason (`SG701`), and word the refusal of
   one identifier with `Reject`. An edge and a `Reject` for the same key are `SG702`.
   [Policies](references/graph-model.md#policies-every-node-answers)
+- Declare every text an annotation takes, the `otherwise` of a `StatePolicy` and the `reason` of a `Reject`, as a
+  `String` constant inside the machine interface, and reference it: never leave a raw string literal in an annotation.
+  An annotation on the interface declaration cannot see the interface's members by simple name, so qualify the
+  constant with the interface name or import it statically.
 - An action that can return `ActionOutcome.failed(...)` needs a route: a recovery rule for its failure kind, or an
   `onFailure` edge from the same origin. Without one, the call throws `UnhandledFailureException` and commits nothing.
   [Domain failures](references/actions-and-failures.md#domain-failures)

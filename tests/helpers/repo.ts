@@ -108,12 +108,41 @@ export function cli(repo: string, args: string[], env: Record<string, string> = 
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-/** A `gh` stand-in that appends its arguments, on one line, to the log file; returns both paths. */
-export function fakeGh(): { gh: string; log: string } {
+/** The paths of a `gh` stand-in: the binary, its log, and the marker files of the releases it holds. */
+export type FakeGh = { gh: string; log: string; releases: string; failCreate: string };
+
+/**
+ * A `gh` stand-in. `release view <tag>` writes nothing and succeeds only when `releases/<tag>` exists, as real gh
+ * does for a release that exists. Every other call appends its arguments, on one line, to the log file;
+ * `release create <tag>` then creates `releases/<tag>`, or fails while the `failCreate` file exists, and
+ * `release upload <tag>` fails when `releases/<tag>` does not exist.
+ */
+export function fakeGh(): FakeGh {
   const dir: string = temporary('gh');
   const gh: string = join(dir, 'gh');
   const log: string = join(dir, 'gh.log');
-  writeFileSync(gh, `#!/bin/sh\nprintf '%s\\n' "$*" >> "${log}"\n`);
+  const releases: string = join(dir, 'releases');
+  const failCreate: string = join(dir, 'fail-create');
+  mkdirSync(releases);
+  writeFileSync(
+    gh,
+    [
+      '#!/bin/sh',
+      'if [ "$1 $2" = "release view" ]; then',
+      `  [ -f "${releases}/$3" ] && exit 0`,
+      "  echo 'release not found' >&2; exit 1",
+      'fi',
+      `printf '%s\\n' "$*" >> "${log}"`,
+      'if [ "$1 $2" = "release create" ]; then',
+      `  [ -f "${failCreate}" ] && { echo 'HTTP 502: Bad Gateway' >&2; exit 1; }`,
+      `  : > "${releases}/$3"`,
+      'fi',
+      'if [ "$1 $2" = "release upload" ]; then',
+      `  [ -f "${releases}/$3" ] || { echo 'release not found' >&2; exit 1; }`,
+      'fi',
+      '',
+    ].join('\n'),
+  );
   chmodSync(gh, 0o755);
-  return { gh, log };
+  return { gh, log, releases, failCreate };
 }

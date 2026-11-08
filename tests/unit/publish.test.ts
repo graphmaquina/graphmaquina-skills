@@ -3,14 +3,14 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { compareVersions } from '../../pipeline/publish.ts';
 import { cleanUp, cli, fakeGh, git, library, put, SKILL, skillsRepo, temporary, VERSION } from '../helpers/repo.ts';
-import type { CliResult } from '../helpers/repo.ts';
+import type { CliResult, FakeGh } from '../helpers/repo.ts';
 import { execFileSync } from 'node:child_process';
 
 vi.setConfig({ testTimeout: 60000 });
 
 afterEach(cleanUp);
 
-type Setup = { repo: string; origin: string; lib: string; gh: { gh: string; log: string } };
+type Setup = { repo: string; origin: string; lib: string; gh: FakeGh };
 
 function setup(): Setup {
   return { ...skillsRepo(), lib: library(), gh: fakeGh() };
@@ -120,6 +120,21 @@ describe('publish', () => {
     git(s.repo, 'update-ref', '-d', 'refs/remotes/origin/main');
     expect(publishCli(s).status).toBe(0);
     expect(git(s.origin, 'rev-parse', 'refs/heads/main')).toBe(git(s.repo, 'rev-parse', 'HEAD'));
+  });
+
+  it('publishes the first version to an empty origin that has never received a push', () => {
+    const s: Setup = setup();
+    const empty: string = temporary('empty');
+    git(empty, 'init', '-q', '--bare', '-b', 'main');
+    git(s.repo, 'remote', 'set-url', 'origin', empty);
+    git(s.repo, 'update-ref', '-d', 'refs/remotes/origin/main');
+    expect(git(empty, 'for-each-ref')).toBe('');
+    expect(git(s.repo, 'for-each-ref', 'refs/remotes')).toBe('');
+    const result: CliResult = publishCli(s);
+    expect(result.status, result.stderr).toBe(0);
+    expect(git(empty, 'rev-parse', 'refs/heads/main')).toBe(git(s.repo, 'rev-parse', 'HEAD'));
+    expect(git(empty, 'tag', '--list')).toBe('v2.0.4\n');
+    expect(ghLog(s)).toContain('release create v2.0.4');
   });
 
   it('refuses a tag that is already on origin', () => {
@@ -273,6 +288,81 @@ describe('an interrupted publish', () => {
     expect(result.stderr).toContain("'GraphMaquina skill 2.0.4'");
     const republished: CliResult = expectRefused(s, () => publishCli(s, '--republish'), 'tag v2.0.4 is not on origin');
     expect(republished.stderr).toContain('git push origin v2.0.4');
+  });
+});
+
+describe('a tag on origin without its GitHub release', () => {
+  /** Publishes 2.0.4 with a failing `gh release create`: main and the tag reach origin, the release does not exist. */
+  function stoppedBeforeRelease(): Setup {
+    const s: Setup = setup();
+    writeFileSync(s.gh.failCreate, '');
+    const result: CliResult = publishCli(s);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('publish failed');
+    expect(commands(result)).toHaveLength(1);
+    expect(commands(result)[0]).toContain('release create v2.0.4');
+    expect(git(s.origin, 'tag', '--list')).toBe('v2.0.4\n');
+    expect(git(s.origin, 'rev-parse', 'refs/heads/main')).toBe(git(s.repo, 'rev-parse', 'HEAD'));
+    rmSync(s.gh.failCreate);
+    return s;
+  }
+
+  function commands(result: CliResult): string[] {
+    return result.stderr
+      .split('\n')
+      .filter((line: string) => line.startsWith('  '))
+      .map((line: string) => line.trim());
+  }
+
+  function runAll(s: Setup, listed: string[]): void {
+    for (const command of listed) {
+      execFileSync('sh', ['-c', command], { cwd: s.repo, stdio: 'pipe' });
+    }
+  }
+
+  it('refuses the rerun with the gh release create that finishes it, and nothing is written', () => {
+    const s: Setup = stoppedBeforeRelease();
+    const result: CliResult = expectRefused(s, () => publishCli(s), 'v2.0.4 is already on origin but has no GitHub release');
+    expect(result.stderr).toContain('release view v2.0.4 --repo graphmaquina/skills` failed: release not found');
+    expect(result.stderr).not.toContain('--republish');
+    const listed: string[] = commands(result);
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).toContain('release create v2.0.4');
+    expect(listed[0]).toContain('graphmaquina-skill-2.0.4.zip --repo graphmaquina/skills');
+    expect(listed[0]).toContain("--title 'GraphMaquina skill 2.0.4' --notes 'Skill for GraphMaquina 2.0.4.'");
+
+    runAll(s, listed);
+    expect(existsSync(join(s.gh.releases, 'v2.0.4'))).toBe(true);
+    expectRefused(s, () => publishCli(s), 'Use --republish');
+  });
+
+  it('lists the zip build first when the zip is gone, and the commands create the release', () => {
+    const s: Setup = stoppedBeforeRelease();
+    rmSync(join(s.repo, 'build'), { recursive: true });
+    const result: CliResult = expectRefused(s, () => publishCli(s), 'v2.0.4 is already on origin but has no GitHub release');
+    const listed: string[] = commands(result);
+    expect(listed).toHaveLength(2);
+    expect(listed[0]).toContain('zip -r -X -q');
+    expect(listed[1]).toContain('release create v2.0.4');
+
+    runAll(s, listed);
+    expect(execFileSync('unzip', ['-l', join(s.repo, 'build/graphmaquina-skill-2.0.4.zip')], { encoding: 'utf8' })).toContain(
+      'graphmaquina/SKILL.md',
+    );
+    expect(existsSync(join(s.gh.releases, 'v2.0.4'))).toBe(true);
+  });
+
+  it('refuses --republish, which has no release to upload to, and nothing is written', () => {
+    const s: Setup = stoppedBeforeRelease();
+    const result: CliResult = expectRefused(
+      s,
+      () => publishCli(s, '--republish'),
+      'v2.0.4 is on origin but has no GitHub release to update',
+    );
+    expect(commands(result)).toHaveLength(1);
+    expect(commands(result)[0]).toContain('release create v2.0.4');
+    expect(result.stderr).toContain('Then run publish --republish again.');
+    expect(ghLog(s)).not.toContain('release upload');
   });
 });
 

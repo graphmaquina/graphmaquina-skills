@@ -44,7 +44,7 @@ Compare it with {{version}} and act:
 ## 2. Do not explore the jars
 
 Learn the API from the references only. They document the public API of GraphMaquina {{version}}: annotations,
-generated names, method signatures, outcomes, every `SG` diagnostic, every runtime exception and every test assertion.
+generated names, method signatures, outcomes, every `SG` diagnostic, the runtime exceptions and the test assertions.
 
 Look in this order:
 

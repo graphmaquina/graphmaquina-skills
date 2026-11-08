@@ -176,6 +176,32 @@ function interrupted(options: PublishOptions, why: string, tagExistsHere: boolea
   );
 }
 
+/** Why `gh release view` found no GitHub release for the version's tag, or undefined when the release exists. */
+function missingRelease(options: PublishOptions): string | undefined {
+  try {
+    run(options.gh, ['release', 'view', `v${options.version}`, '--repo', SKILLS_REPOSITORY], options.repo);
+    return undefined;
+  } catch (error: unknown) {
+    return firstLine(error);
+  }
+}
+
+/**
+ * The refusal for a version whose tag is on origin but whose GitHub release is missing: lists the commands that
+ * create the release, building the zip first when it is not there.
+ */
+function releaseMissing(options: PublishOptions, reason: string, why: string, then: string): PublishError {
+  const { repo, version, gh } = options;
+  const steps: Step[] = finishSteps(options, 'create', { main: mainNeedsPush(repo), tag: false }).filter(
+    (each: Step) => each.command !== 'zip' || !existsSync(zipPath(repo, version)),
+  );
+  const view: string = words(gh, ['release', 'view', `v${version}`, '--repo', SKILLS_REPOSITORY]);
+  return new PublishError(
+    `${why} (\`${view}\` failed: ${reason}), so an earlier publish stopped before its release. ` +
+      `Finish it from ${repo} with:\n${listing(steps)}${then}`,
+  );
+}
+
 /** Every check that must pass before anything is written; throws on the first refusal. */
 function validate(options: PublishOptions): void {
   const { repo, version, republish } = options;
@@ -219,6 +245,13 @@ function validate(options: PublishOptions): void {
     }
   }
 
+  if (!available('zip')) {
+    throw new PublishError('zip was not found; install it before publishing');
+  }
+  if (!available(options.gh)) {
+    throw new PublishError(`${options.gh} was not found; install the GitHub CLI or set GM_GH to it before publishing`);
+  }
+
   const skillFile: string = join(repo, SKILL_DIR, 'SKILL.md');
   const stamped: string | undefined = existsSync(skillFile) ? stampedVersion(readFileSync(skillFile, 'utf8')) : undefined;
   const localTag: boolean = run('git', ['tag', '--list', tag], repo).trim() !== '';
@@ -237,11 +270,25 @@ function validate(options: PublishOptions): void {
         localTag,
       );
     }
+    const reason: string | undefined = missingRelease(options);
+    if (reason !== undefined) {
+      throw releaseMissing(
+        options,
+        reason,
+        `the tag ${tag} is on ${REMOTE} but has no GitHub release to update`,
+        '\nThen run publish --republish again.',
+      );
+    }
   } else {
     if (stamped !== undefined && compareVersions(version, stamped) < 0) {
       throw new PublishError(`version ${version} is lower than the stamped ${stamped}; ${BRANCH} must not go back`);
     }
     if (remoteTag) {
+      const reason: string | undefined =
+        stamped !== undefined && compareVersions(version, stamped) === 0 ? missingRelease(options) : undefined;
+      if (reason !== undefined) {
+        throw releaseMissing(options, reason, `the tag ${tag} is already on ${REMOTE} but has no GitHub release`, '');
+      }
       throw new PublishError(`the tag ${tag} is already on ${REMOTE}; tags never move. Use --republish for a docs fix`);
     }
     if (localTag) {
@@ -250,12 +297,6 @@ function validate(options: PublishOptions): void {
     if (stamped !== undefined && compareVersions(version, stamped) === 0) {
       throw interrupted(options, `version ${version} is already the stamped one but has no tag`, false);
     }
-  }
-  if (!available('zip')) {
-    throw new PublishError('zip was not found; install it before publishing');
-  }
-  if (!available(options.gh)) {
-    throw new PublishError(`${options.gh} was not found; install the GitHub CLI or set GM_GH to it before publishing`);
   }
 }
 
@@ -270,9 +311,10 @@ function stagedChanges(repo: string): boolean {
 
 /**
  * Publishes the skill for one library version (spec §5.6). Everything is checked before anything is written:
- * clean tree, branch main, an `origin` that main is not behind, the version and tag rules, the docs source and
- * every check on the generated skill. Then it writes the skill, commits, tags (normal publish), zips, pushes and
- * creates the GitHub release (or, with `republish`, uploads the new zip to the existing one).
+ * clean tree, branch main, an `origin` that main is not behind, the version and tag rules (with, for a tag already on
+ * `origin`, its GitHub release), the docs source and every check on the generated skill. Then it writes the skill,
+ * commits, tags (normal publish), zips, pushes and creates the GitHub release (or, with `republish`, uploads the new
+ * zip to the existing one).
  *
  * @throws PublishError when it refuses before writing anything
  * @throws PublishFailure when a step fails after writing; its message lists the commands that finish the publish

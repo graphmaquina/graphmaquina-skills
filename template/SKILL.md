@@ -150,8 +150,9 @@ Done when the build passes with no `SG` diagnostic and the tests of section 8 pa
    `@GraphAction`, `@GraphGuard`, `@GraphHook` or another of the
    [handwritten markers](references/graph-model.md#handwritten-markers). A graph built in code starts with
    `StateGraph.define`.
-2. Understand the graph from its declarations. To see it whole, read its `definition()` or export it, as
-   [inspect graphs and export diagrams](references/graph-inspection.md) shows.
+2. Understand the graph from its declarations. To see it whole, read its `definition()`, or write its DOT diagram
+   with `./gradlew exportStateGraphDot` or `mvn graphmaquina:export-dot`, no code needed, as
+   [export from the command line](references/graph-inspection.md#export-from-the-command-line) shows.
 3. Make the change and rebuild: renamed declarations regenerate their symbols, and javac names the handwritten
    references to fix ([IDE workflow](references/generation.md#ide-workflow)). Before adding a feature the machine does
    not use yet, such as a recovery rule or an automatic edge, find its page as section 9 says. Keep the build and the

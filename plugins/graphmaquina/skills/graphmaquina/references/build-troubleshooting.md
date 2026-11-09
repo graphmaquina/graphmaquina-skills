@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Build troubleshooting and limits
 
@@ -138,4 +138,4 @@ what javac actually accepted, so:
 
 ---
 
-Next: [Documentation illustrations](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/README.md). Back to the [documentation index](README.md).
+Next: [Documentation illustrations](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/README.md). Back to the [documentation index](README.md).

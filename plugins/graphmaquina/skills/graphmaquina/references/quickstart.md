@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Quickstart: a complete ticket machine
 
@@ -12,7 +12,7 @@ A ticket is submitted for review, and submission registers it with the review bo
 take the ticket is a declared domain failure, so the ticket lands in `FAILED`. Once in review it can be
 approved by a person, auto-approved by a rule, retouched in place, or rejected back to `OPEN`.
 
-![Ticket workflow: SUBMIT moves OPEN to REVIEW when hasTitle passes, or commits FAILED through the DECLINE route. From REVIEW, APPROVE and AUTO_APPROVE are two separate edges to DONE, RETOUCH is a self-loop and REJECT returns to OPEN.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/ticket-workflow.svg)
+![Ticket workflow: SUBMIT moves OPEN to REVIEW when hasTitle passes, or commits FAILED through the DECLINE route. From REVIEW, APPROVE and AUTO_APPROVE are two separate edges to DONE, RETOUCH is a self-loop and REJECT returns to OPEN.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/ticket-workflow.svg)
 
 ## Contents
 
@@ -406,7 +406,7 @@ covers every variant.
 Test through generated facades using real entities and deterministic action dependencies. The quickstart's
 `App` is an executable smoke test that covers an applied edge, a guard rejection, a handled failure, a
 request with no edge, a self-loop, a cycle and two parallel edges, and
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java)
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java)
 shows JUnit tests for payment, retries, cascades, watches, journals, and the flow and the trail of a call.
 
 The test below reads its outcome with `graphmaquina-test`, the module that holds the typed assertions. Every
@@ -454,7 +454,7 @@ class TicketsTest {
 `isFailed()` narrows the outcome and fails with the kind it actually got. `hasTarget` is where `SUBMIT` was heading,
 `hasFailureTransition` is the identifier of the edge that recovered, `movedTo` is where that edge landed, and
 `hasEntityState` reads the entity itself. Run `./gradlew test` in your application. The repository's
-[ReadmeQuickstartTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/ReadmeQuickstartTest.java) extracts these literal
+[ReadmeQuickstartTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/ReadmeQuickstartTest.java) extracts these literal
 Gradle blocks and Ticket Java files, generates and compiles the main sources, runs `App` and checks that its output contains
 `All ticket scenarios passed.`, and
 verifies this named JUnit test and its result counts in an external Gradle consumer using locally staged artifacts. This verifies the Gradle

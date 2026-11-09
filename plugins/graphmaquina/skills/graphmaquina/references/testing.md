@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Testing GraphMaquina machines
 
@@ -64,7 +64,7 @@ The machines under test are built exactly as the application builds them: a real
 and test doubles only where the domain reaches outside the process. A `TransitionRecorder` is a
 `MachineObserver`, so it is installed the way any observer is, and `recordTrail()` makes every call of the set
 record its [trail](testing-advanced.md#the-calls-flow-and-its-trail). From
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
 
 ```java
 final FakeGateway gateway = new FakeGateway();
@@ -232,11 +232,15 @@ logic.
   child's definition a snapshot of its own. Use typed graph assertions for focused expectations. Neither approach
   executes domain logic; test guards, actions, cascades and watches through real operations and assert their
   outcomes, records, reactions and observed entity states.
-- `GraphGoldens.assertMatches(definition, resource)` compares the Graphviz DOT output with a checked-in
-  `.dot` file. There is no detail mode: the export draws the declared edges, draws a state that holds a
+- `GraphGoldens.assertMatches(definition, resource)` compares the Graphviz DOT output, drawn with the
+  [default theme](graph-inspection.md#change-the-colors), with a checked-in `.dot` file. There is no detail mode: the export draws the declared edges, draws a state that holds a
   sub-machine as a cluster containing the child's own graph, so the parent's golden changes with the child's graph, and renders each node's policy as that node's tooltip, or as the
   cluster's for a bound state. This is a visual regression test only: a diagram change must not be the evidence
   for a change in machine behavior.
+
+A snapshot or a golden only reads the definition, so the definition of an annotated machine can come from its
+companion's [`structure()`](graph-inspection.md#a-definition-without-collaborators), which binds no collaborator, as
+well as from `graph(...)` over the fakes of a test.
 
 Snapshots are `graphmaquina-snapshot-v1` documents; `GraphSnapshot.parse` refuses any other header. After that
 version line comes one `path TAB value` line per field, each ending in a line feed, with backslash, tab, line feed and
@@ -250,7 +254,7 @@ order they are tried in, at `/automaticOrder/<state>/count` and `/automaticOrder
 `PublishedArtifactSmokeTest` compiles and runs a semantic consumer after removing every graphic-export class
 from the core JAR; assertions, state observation and structural snapshots must still work.
 
-From [DiagramsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/DiagramsTest.java):
+From [DiagramsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/DiagramsTest.java):
 
 ```java
 @Test
@@ -259,7 +263,7 @@ void orderDiagramMatchesGolden() {
 }
 ```
 
-From [GraphContractsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/GraphContractsTest.java):
+From [GraphContractsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/GraphContractsTest.java):
 
 ```java
 @Test

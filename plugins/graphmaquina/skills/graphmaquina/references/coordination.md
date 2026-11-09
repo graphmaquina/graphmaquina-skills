@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Machine sets, cascades and watches
 
@@ -74,7 +74,7 @@ shutdown. There is no required Spring dependency or GraphMaquina-specific contai
 
 ## Read peers and cascade transitions
 
-![A cascade shares the root unit of work and deadline before commit. A watch reacts after peer commit in a new transaction and cannot undo that peer commit.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/cascade-vs-watch.svg)
+![A cascade shares the root unit of work and deadline before commit. A watch reacts after peer commit in a new transaction and cannot undo that peer commit.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/cascade-vs-watch.svg)
 
 Both mechanisms in the shop, as one sequence: an order's `CANCEL` cascades to its items, and an item's `PACK`
 later lets a watching order ship.
@@ -234,7 +234,7 @@ relationship: owner → peer collection, and peer → owner, through a property 
 
 The shop has orders and items. An order watches its items while it is `PAID`, and ships when all are `PACKED`.
 
-![After the last item commits PACKED, the PAID order is reevaluated in a new transaction. If all peers are PACKED, its normal shipping edge runs. A failed reaction does not undo the item commit.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/watch-reactions.svg)
+![After the last item commits PACKED, the PAID order is reevaluated in a new transaction. If all peers are PACKED, its normal shipping edge runs. A failed reaction does not undo the item commit.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/watch-reactions.svg)
 
 This excerpt belongs on the shop's `Orders` interface, alongside its definition, policies and operations:
 

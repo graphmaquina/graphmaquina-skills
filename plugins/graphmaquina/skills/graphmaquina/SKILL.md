@@ -2,19 +2,19 @@
 name: graphmaquina
 description: Create, change, migrate, debug and test GraphMaquina state machines. Use in Java projects that depend on io.github.graphmaquina, or to migrate a state machine to GraphMaquina.
 license: Apache-2.0
-compatibility: Java 21+ projects that use GraphMaquina 2.0.5 with Gradle or Maven
+compatibility: Java 21+ projects that use GraphMaquina 2.0.6 with Gradle or Maven
 metadata:
-  version: "2.0.5"
-  documentation: "https://graphmaquina.dev/v/2.0.5/"
+  version: "2.0.6"
+  documentation: "https://graphmaquina.dev/v/2.0.6/"
 ---
 
 # GraphMaquina
 
-This skill documents GraphMaquina 2.0.5. GraphMaquina builds typed, graph-based state machines for Java 21: you
+This skill documents GraphMaquina 2.0.6. GraphMaquina builds typed, graph-based state machines for Java 21: you
 declare identified edges with annotations, the build generates a typed API and validates the whole graph, and an
 in-process runtime runs each call against the entity you pass.
 
-The folder `references/` holds the GraphMaquina 2.0.5 documentation, one page per file, and
+The folder `references/` holds the GraphMaquina 2.0.6 documentation, one page per file, and
 [references/README.md](references/README.md) is its index. Read only the page and section a step needs.
 
 Follow the developer's project conventions: code style, `var` or explicit types, Lombok, test framework. The examples
@@ -29,21 +29,21 @@ Before anything else, read the GraphMaquina version the project uses, from the f
 - a version catalog entry, such as one in `gradle/libs.versions.toml`;
 - the version of the `io.github.graphmaquina` plugin, or of the `io.github.graphmaquina:graphmaquina-core` coordinates.
 
-Compare it with 2.0.5 and act:
+Compare it with 2.0.6 and act:
 
 - The same version: use the references for everything.
-- Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents 2.0.5, and suggest installing the
+- Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents 2.0.6, and suggest installing the
   skill of their version, tag `v<version>` of `github.com/graphmaquina/graphmaquina-skills`, when that tag exists. Meanwhile, for
   anything that depends on the API, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
   instead of the references.
 - 1.x, or a version whose `https://graphmaquina.dev/v/<version>/llms.txt` does not answer: tell the developer that this
   skill does not cover it, and do not guess its API.
 - No GraphMaquina in the project: go on only when the developer asked for a new GraphMaquina machine or a migration to
-  GraphMaquina, and configure 2.0.5 as section 4 says.
+  GraphMaquina, and configure 2.0.6 as section 4 says.
 
 ## 2. Do not explore the jars
 
-Learn the API from the references only. They document the public API of GraphMaquina 2.0.5: annotations,
+Learn the API from the references only. They document the public API of GraphMaquina 2.0.6: annotations,
 generated names, method signatures, outcomes, every `SG` diagnostic, the runtime exceptions and the test assertions.
 
 Look in this order:
@@ -125,7 +125,7 @@ Each rule links the section that backs it. Read that section when the rule appli
 
 ## 4. New machine
 
-1. If the project has no GraphMaquina yet, configure Gradle or Maven with version 2.0.5 as
+1. If the project has no GraphMaquina yet, configure Gradle or Maven with version 2.0.6 as
    [install and configure the build](references/installation.md) shows.
 2. Model the machine with the developer: the states, the initial one and the final ones; every edge as identifier,
    origin and destination; its guards, its action and its failure route; the reason each state gives for what it

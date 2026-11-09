@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # GraphMaquina documentation
 
@@ -70,7 +70,7 @@ time; each page links the next one in that order.
 | --- | --- |
 | [Debug a call with logs](logs.md) | The runtime's `System.Logger` output at `DEBUG` and `TRACE` |
 | [The call's flow](call-flow.md) | Typed values every step of a call shares, values applied only on commit, and the call's trail |
-| [Inspect graphs and export diagrams](graph-inspection.md) | Reading a definition, Graphviz export, topology queries |
+| [Inspect graphs and export diagrams](graph-inspection.md) | Reading a definition, Graphviz export from code and from the build, topology queries |
 | [Diagnostics and troubleshooting](diagnostics.md) | Every `SG` diagnostic code and common build problems |
 | [Runtime exceptions](runtime-exceptions.md) | Every exception the library throws, its phase, its accessors and what to investigate |
 
@@ -94,7 +94,7 @@ time; each page links the next one in that order.
 | Page | What it covers |
 | --- | --- |
 | [Building with the typed graph API](typed-annotations-build.md) | The four build steps, where artifacts come from, the Gradle adapter |
-| [The Maven adapter](build-maven.md) | The six goals, the compiler execution they read, outputs, what the adapter requires and refuses |
+| [The Maven adapter](build-maven.md) | The eight goals, the compiler execution they read, outputs, what the adapter requires and refuses |
 | [Build troubleshooting and limits](build-troubleshooting.md) | Build failures, repeated builds and renames, generator limits |
 
 ## Find a feature
@@ -119,6 +119,8 @@ time; each page links the next one in that order.
 | Share values between the steps of one call | [The call's flow](call-flow.md) |
 | See what a call did, step by step | [Logs](logs.md) and [the call's trail](call-flow.md#record-the-calls-trail) |
 | Draw the graph | [Inspect graphs and export diagrams](graph-inspection.md) |
+| Write every machine's diagram from Gradle or Maven | [Export from the command line](graph-inspection.md#export-from-the-command-line) |
+| Draw a diagram in your own colors | [Change the colors](graph-inspection.md#change-the-colors) |
 | Build a graph at runtime, without annotations | [Programmatic DSL](dsl.md) |
 | Move a machine from another library to GraphMaquina | [Migrate a machine from another library](migrate-from-another-library.md) |
 | Pin a graph's structure in a test | [Goldens and structural snapshots](testing.md#goldens-and-structural-snapshots) |
@@ -129,4 +131,4 @@ time; each page links the next one in that order.
 
 | Page | What it covers |
 | --- | --- |
-| [Documentation illustrations](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/README.md) | The SVG illustrations the pages embed, and what each one shows |
+| [Documentation illustrations](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/README.md) | The SVG illustrations the pages embed, and what each one shows |

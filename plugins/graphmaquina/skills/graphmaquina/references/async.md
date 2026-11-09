@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Asynchronous work and timeouts
 
@@ -30,7 +30,7 @@ to continue. A custom executor determines its own scheduling; a direct executor 
 operation runs on the executor of the machine you called, the exit of a sub-machine it ends included, and the
 binding of a sub-machine is checked when the operation starts running, not when it is submitted.
 
-![Direct invocation waits on the caller thread; machine.async uses the default virtual-thread executor to run the operation while the caller receives a future. Both paths wait for the action stage before committing.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-execution.svg)
+![Direct invocation waits on the caller thread; machine.async uses the default virtual-thread executor to run the operation while the caller receives a future. Both paths wait for the action stage before committing.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/async-execution.svg)
 
 The two calling styles with an asynchronous action, step by step:
 
@@ -294,7 +294,7 @@ An unexpected exception, such as `IllegalStateException`, completes the operatio
 There are two layers of result. A future that completes normally does not imply `Outcome.Applied`:
 `Rejected`, `Ignored` and a handled `Failed` are normal values too.
 
-![The operation future branches into normal completion carrying Applied, Failed, Rejected or Ignored, and exceptional completion carrying a technical or post-commit failure. Watch reactions and automatic steps must also be inspected.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/async-future-results.svg)
+![The operation future branches into normal completion carrying Applied, Failed, Rejected or Ignored, and exceptional completion carrying a technical or post-commit failure. Watch reactions and automatic steps must also be inspected.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/async-future-results.svg)
 
 With the `tickets` and `ticket` from the example, this fragment reacts to completion without joining:
 

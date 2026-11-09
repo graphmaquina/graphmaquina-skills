@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Graphs, annotations and bindings
 
@@ -286,7 +286,7 @@ symbol from the graph declaration.
 | Property `Ticket.state` | `TicketRefs.State.class` |
 | Marked method `TicketActions.hasTitle` | `TicketActionsRefs.HasTitle.class` |
 | `@GraphPeers(Items.class)` on `Orders` | `OrdersItems.Watch`, `.Watches`, `.When`, `.Submachine`, `.Submachines` and `.Exit`, in the owner's package |
-| Machine `Tickets` | `TicketsRuntime`, including `KEY`, graph construction and facade implementation; its public constructor takes a `StateMachine<Ticket, TicketState, TicketTransition>` and implements `Tickets` over it, each operation calling its `execute(...)` and each check its `eligibility(...)`, and refuses a null machine with `NullPointerException` |
+| Machine `Tickets` | `TicketsRuntime`, including `KEY`, graph construction, `graph(...)` and its collaborator-free twin [`structure()`](graph-inspection.md#a-definition-without-collaborators), and facade implementation; its public constructor takes a `StateMachine<Ticket, TicketState, TicketTransition>` and implements `Tickets` over it, each operation calling its `execute(...)` and each check its `eligibility(...)`, and refuses a null machine with `NullPointerException` |
 | Set `TicketMachines` | `TicketMachinesRuntime`, including the generated builder |
 
 `KEY` is a `MachineKey<E, S, T>`: entity class, state enum and transition enum. `MachineKey.of(entity, states,

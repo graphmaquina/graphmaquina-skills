@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Install and configure the build
 
@@ -359,10 +359,10 @@ default lifecycle runs and that compiles the generated vocabulary, whatever its 
 mixed Kotlin and Java build to do; declare `maven-compiler-plugin` before this plugin then, since an execution of
 its own runs in declaration order within its phase, and the opposite order, which would run `complete` before that
 javac, is refused. Two running executions that both compile the vocabulary are refused. A compilation the build
-switches off is skipped instead: `maven.main.skip` or `<skipMain>` makes the three main goals log that and do
-nothing, `maven.test.skip` or `<skip>` the three test goals, a compilation the default lifecycle runs no execution
+switches off is skipped instead: `maven.main.skip` or `<skipMain>` makes the main goals log that and do
+nothing, `maven.test.skip` or `<skip>` the test goals, a compilation the default lifecycle runs no execution
 of the compiler's goal for, as when that goal is bound only to `none` or to phases of other lifecycles, is skipped
-the same way, and a project packaged as `pom` skips all six. Run the normal lifecycle when generating graphs.
+the same way, and a project packaged as `pom` skips every goal. Run the normal lifecycle when generating graphs.
 
 | Optional property | Meaning |
 | --- | --- |

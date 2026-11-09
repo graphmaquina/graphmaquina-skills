@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Testing samples: graphs, outcomes, probes and async
 
@@ -17,7 +17,7 @@
 
 Names are the runtime's public names — the name the DSL or the generated companion declared — not the name
 of the Java method that implements them. From
-[TestingApiTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/TestingApiTest.java):
+[TestingApiTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/TestingApiTest.java):
 
 ```java
 assertThat(orders.definition())
@@ -97,7 +97,7 @@ maps no exception to its fallback `onFailure` route; the exceptions a recovery r
 `movedTo` reads the state the outcome recorded; `hasEntityState` reads the entity through a getter at the
 moment the expectation runs. A reaction is reached from the outcome that carries it, selected by machine and
 by entity identity. From
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
 
 ```java
 assertThat(orders.pay(order)).isApplied().movedTo(OrderStatus.PAID)
@@ -140,7 +140,7 @@ An aborted transition throws rather than returning an outcome, so the subject is
 `captureFailure` runs the operation and hands back what it threw; it catches no `Error`, so an
 `AssertionError` raised inside the body still fails the test the way it should. The order below has a `PACKED`
 item, which has no `CANCEL` edge, and a `PENDING` one. From
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
 
 ```java
 Throwable failure = captureFailure(() -> orders.cancel(order, "B-7"));
@@ -183,7 +183,7 @@ with the `MachineCall` an observer received, `journal()`, and `flow()`, which
 The recorder keeps the outcome of every call that completed, in the order the calls completed, and nothing else. It
 never walks `reactions()`, so a reaction is counted once — as its own call — even though the root
 outcome carries it too. From
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java):
 
 ```java
 recorder.assertRecorded()
@@ -227,7 +227,7 @@ neither.
 
 A `StateSnapshot` reports only the entities it was given, so an entity the test does not name may move
 without ever failing `assertUnchanged()`. From
-[TestingApiTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-example/src/test/java/io/github/graphmaquina/example/TestingApiTest.java):
+[TestingApiTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/TestingApiTest.java):
 
 ```java
 private StateSnapshot track(Order order, Item first, Item second) {
@@ -258,7 +258,7 @@ any other.
 A probe stands where a guard, an action or a hook stands and answers from an explicit script. A shared
 `CallTrace` records the order the callbacks were entered in, and `events()` lists them as `TraceEvent`s, each with its
 `sequence`, the probe's `name` and the `call` it recorded, which is how the engine's short-circuit becomes
-observable. From [ProbeTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/ProbeTest.java):
+observable. From [ProbeTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/ProbeTest.java):
 
 ```java
 CallTrace trace = CallTrace.create();
@@ -284,7 +284,7 @@ which call ran out, rather than letting the machine misbehave.
 
 `StateWriteProbe` wraps the machine's state setter, which is how a test watches phase 2 and makes one write
 fail. Calls are numbered from 1, and an armed call throws before the wrapped setter is reached. From
-[StateWriteProbeTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/StateWriteProbeTest.java):
+[StateWriteProbeTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/StateWriteProbeTest.java):
 
 ```java
 Entity entity = new Entity("e", State.NEW);
@@ -315,7 +315,7 @@ twice throws `IllegalStateException`.
 reading the history after the transaction ends is safe. The payload is not copied: later mutations of a
 mutable argument remain visible, so use an immutable value when the test needs a stable value snapshot.
 
-The [published consumer test](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/PublishedArtifactSmokeTest.java)
+The [published consumer test](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/PublishedArtifactSmokeTest.java)
 invokes an operation with a string argument named `input`, then checks both recorded calls:
 
 ```java
@@ -349,8 +349,8 @@ for a guard call, five for an action call — remain available and create calls 
 patterns must list every component, and generated equality, hash codes and string representations include
 them all.
 
-Executable examples: [ProbeInputTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/ProbeInputTest.java) and
-[CallInputAssertionsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/CallInputAssertionsTest.java). The
+Executable examples: [ProbeInputTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/ProbeInputTest.java) and
+[CallInputAssertionsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/CallInputAssertionsTest.java). The
 published-artifact consumer also compiles and runs these input assertions directly from the staged JARs.
 
 ## Controlled asynchronous invocations
@@ -365,7 +365,7 @@ a failure of the action, and the guard with an `IllegalStateException`, which ab
 `awaitInvocation` on a closed fixture fails at once, and a wait already blocked when the fixture closes is
 woken and fails the same way.
 Concurrent invocations are independent: each arrives with its own handle and is answered on its own. From
-[ControlledAsyncTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/ControlledAsyncTest.java), where
+[ControlledAsyncTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/ControlledAsyncTest.java), where
 `GENEROUS` is that test's own two-second budget:
 
 ```java

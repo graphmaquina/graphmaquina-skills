@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Code generation and IDE setup
 
@@ -24,7 +24,7 @@ There are three kinds of API:
 | `TicketsGraph.Definition`, `TicketsGraph.Transition`, `TicketsGraph.StatePolicy`, `TicketRefs`, `TicketActionsRefs` | The pre-compilation generator, from your declarations | After the generation task/phase, before application compilation |
 | `TicketsRuntime`, `TicketMachinesRuntime` | The annotation processor, from the validated flow | During application compilation |
 
-![Original Java declarations enter a syntax-only generator, which emits typed vocabulary. javac then compiles original source and generated annotations together and produces Runtime implementations.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/docs/images/annotation-bootstrap.svg)
+![Original Java declarations enter a syntax-only generator, which emits typed vocabulary. javac then compiles original source and generated annotations together and produces Runtime implementations.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/annotation-bootstrap.svg)
 
 The generator creates the annotation types; you choose the flow by using those annotations. It does not
 infer transitions from action method bodies, and it never invents a transition identifier from a name. For

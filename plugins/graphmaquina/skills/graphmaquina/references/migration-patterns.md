@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.5 documentation, copied from tag v2.0.5 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Migration patterns for concepts without an equivalent
 
@@ -7,7 +7,7 @@ entry and exit actions, history states, parallel regions, timers and deferred ev
 closest pattern from features GraphMaquina has. What a pattern changes for the developer, the warning to give when you
 translate the concept, is in the concept's entry of [migrate a machine from another library](migrate-from-another-library.md).
 
-[MigrationGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.5/graphmaquina-test/src/test/java/consumer/MigrationGuideFragmentsTest.java) builds every
+[MigrationGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/MigrationGuideFragmentsTest.java) builds every
 block of this page with the GraphMaquina Gradle plugin against the published artifacts, and runs JUnit tests of what
 each section says the pattern does. The blocks leave out the package and the imports, and use the constants of their
 enums through static imports. That test writes around them the entities, enums and facades each section describes,

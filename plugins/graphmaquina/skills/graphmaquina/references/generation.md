@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Code generation and IDE setup
 
@@ -24,7 +24,7 @@ There are three kinds of API:
 | `TicketsGraph.Definition`, `TicketsGraph.Transition`, `TicketsGraph.StatePolicy`, `TicketRefs`, `TicketActionsRefs` | The pre-compilation generator, from your declarations | After the generation task/phase, before application compilation |
 | `TicketsRuntime`, `TicketMachinesRuntime` | The annotation processor, from the validated flow | During application compilation |
 
-![Original Java declarations enter a syntax-only generator, which emits typed vocabulary. javac then compiles original source and generated annotations together and produces Runtime implementations.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/annotation-bootstrap.svg)
+![Original Java declarations enter a syntax-only generator, which emits typed vocabulary. javac then compiles original source and generated annotations together and produces Runtime implementations.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/annotation-bootstrap.svg)
 
 The generator creates the annotation types; you choose the flow by using those annotations. It does not
 infer transitions from action method bodies, and it never invents a transition identifier from a name. For
@@ -75,10 +75,11 @@ their handwritten declarations:
 
 `TicketsGraph.java` contains the nested annotations `Definition`, `StatePolicy`, `Transition` and `Reject`,
 with `StatePolicies`, `Transitions` and `Rejects` as their repeatable containers, `Recovery`, which is
-written only inside a `Transition`, `Check`, which is written on a method, and `AutomaticOrder`, with
-`AutomaticOrders` as its repeatable container. `TicketRefs` contains
+written only inside a `Transition`, `Check` and `Choice`, each written on a method, and `AutomaticOrder`,
+with `AutomaticOrders` as its repeatable container. `TicketRefs` contains
 symbols for `@GraphProperty` members; `TicketActionsRefs` contains symbols for marked actions, guards and
-hooks. Generation alone does not produce `TicketsRuntime` or `TicketMachinesRuntime`.
+hooks; the symbol of a guard also declares `NAME`, the guard's runtime name. Generation alone does not produce
+`TicketsRuntime` or `TicketMachinesRuntime`.
 
 Refresh the IDE's build model if needed. You can now replace the minimal `Tickets.java` with the
 [complete flow declaration](quickstart.md#ticketsjava), using `@TicketsGraph.Definition`, `@TicketsGraph.StatePolicy` and

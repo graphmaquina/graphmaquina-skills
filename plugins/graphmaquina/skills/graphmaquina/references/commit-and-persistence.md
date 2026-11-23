@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Commit, hooks, observers and persistence
 
@@ -12,7 +12,7 @@
 ![Root actions, cascades and sub-machines stage changes in a shared unit of work. Commit checks original states and
 writes final states; hooks, independent watch reactions and the automatic steps of the entities the commit moved
 follow, then the observers learn how the call ended, and the call returns its outcome with its frozen flow, its
-reactions and its automatic steps.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/commit-lifecycle.svg)
+reactions and its automatic steps.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/commit-lifecycle.svg)
 
 Observers are told that the call starts before step 1. A call that completes tells them in step 9; one that throws tells
 them before the exception leaves the call.
@@ -28,7 +28,9 @@ The runtime's normal root execution follows this sequence:
 6. Run hooks for the committed hops, in log order.
 7. Dispatch watch reactions for moved peers.
 8. Run the [automatic chain](automatic-transitions.md#when-the-chain-runs) of each entity with a hop or a sub-machine
-   start in the commit, in log order, unless its last hop there is a failure route that does not continue, or a call
+   start in the commit, in log order, unless its machine is
+   [declared `ON_ADVANCE`](automatic-transitions.md#chain-only-on-advance) and this call is no `advance` of that very
+   entity, or its last hop there is a failure route that does not continue, or a call
    made on the same thread in steps 6 to 8, by a hook, a watch reaction or an earlier attempt, already committed a hop
    or a start of it: the deepest commit that moved an entity chains it (a hook's call on another thread is not
    nested: [when the chain runs](automatic-transitions.md#when-the-chain-runs)). While its state has an automatic
@@ -161,8 +163,8 @@ more than once in a cascade.
 
 ### Observers
 
-An observer sees every call of the set: each operation, each `reevaluate` and each `advance`, watch reactions and
-automatic attempts included. A cascade
+An observer sees every call of the set: each operation, each `reevaluate`, each `advance` and each `choose`, watch
+reactions and automatic attempts included. A cascade
 is part of the call that runs it. With the ticket set:
 
 ```java
@@ -185,25 +187,25 @@ TicketMachines machines = TicketMachinesRuntime.builder(new TicketActions())
 
 Each call notifies `onStarted` once, then exactly one of `onCompleted` and `onFailed`, on the thread that runs it,
 before the operation returns or throws. A request refused before it starts, such as one with a null argument,
-notifies no observer. Nor does an eligibility check, `eligibility(entity, id)` on a `StateMachine`: a check is not a
-call. An observer whose `onStarted` threw still receives its end event, and
-`elapsed` runs from just before `onStarted` until just before that event. Observers belong to a registry: a machine
-built standalone has none. `MachineCall` names the machine, the entity, the `request()` (a `CallRequest`: `EXECUTE`,
-`REEVALUATE` or `ADVANCE`), the requested identifier (`transition()`, present only for an
-`EXECUTE`) and the `origin()` (a `CallOrigin`: `APPLICATION`, `WATCH_REACTION` or `AUTOMATIC_STEP`, the last for an
-`advance` of an automatic chain). Its `toString()` never prints the entity: it reads `<key> <ID>`, `<key> reevaluate`
-or `<key> advance`, followed by ` (watch reaction)` for a reaction and ` (automatic step)` for an automatic attempt. The
-same instance reaches every event of the call, and two calls are equal only when they are the same instance. A
-reaction or an automatic attempt starts and ends inside the call whose commit triggered it, so events nest like a stack
-on their thread. `onFailed` receives the very throwable the caller gets, with the phase the call was in and
-how far it got in writing states; an `Error` is reported too, then propagates. The phase is one of `CallPhase`'s
-`RESOLVE`, `GUARD`, `ACTION`, `COMMIT`, `HOOK`, `REACTIONS` and `AUTOMATIC_STEPS`. Only an `Error` reaches `onFailed`
-in `REACTIONS`, one thrown by a reaction, or in `AUTOMATIC_STEPS`, one thrown by an automatic attempt or by the reads
-a chain makes around its attempts, since any other throwable there becomes a `Reaction.Aborted` or an
-`AutomaticStep.Aborted`; and one thrown by the `end` line of a call that committed, in `AUTOMATIC_STEPS`, or in
-`REACTIONS` in a registry without automatic edges, which never enters `AUTOMATIC_STEPS`. So an observer reads
-the call's flow as the caller does: `outcome.flow()` in `onCompleted`, and the `flow()` of the `CallFailedException` in `onFailed`, which
-the call attached before it told the observers.
+notifies no observer. Nor does an eligibility check, `eligibility(entity, id)` or
+`chooseEligibility(entity, candidates)` on a `StateMachine`: a check is not a call. An observer whose `onStarted` threw
+still receives its end event, and `elapsed` runs from just before `onStarted` until just before that event. Observers
+belong to a registry: a machine built standalone has none. `MachineCall` names the machine, the entity, the `request()`
+(a `CallRequest`: `EXECUTE`, `REEVALUATE`, `ADVANCE` or `CHOOSE`), the requested identifier (`transition()`, present
+only for an `EXECUTE`) and the `origin()` (a `CallOrigin`: `APPLICATION`, `WATCH_REACTION` or `AUTOMATIC_STEP`, the last
+for an `advance` of an automatic chain). Its `toString()` never prints the entity: it reads `<key> <ID>`,
+`<key> reevaluate`, `<key> advance` or `<key> choose`, followed by ` (watch reaction)` for a reaction and
+` (automatic step)` for an automatic attempt. The same instance reaches every event of the call, and two calls are equal
+only when they are the same instance. A reaction or an automatic attempt starts and ends inside the call whose commit
+triggered it, so events nest like a stack on their thread. `onFailed` receives the very throwable the caller gets, with
+the phase the call was in and how far it got in writing states; an `Error` is reported too, then propagates. The phase
+is one of `CallPhase`'s `RESOLVE`, `GUARD`, `ACTION`, `COMMIT`, `HOOK`, `REACTIONS` and `AUTOMATIC_STEPS`. Only an
+`Error` reaches `onFailed` in `REACTIONS`, one thrown by a reaction, or in `AUTOMATIC_STEPS`, one thrown by an automatic
+attempt or by the reads a chain makes around its attempts, since any other throwable there becomes a `Reaction.Aborted`
+or an `AutomaticStep.Aborted`; and one thrown by the `end` line of a call that committed, in `AUTOMATIC_STEPS`, or in
+`REACTIONS` in a registry without automatic edges, which never enters `AUTOMATIC_STEPS`. So an observer reads the call's
+flow as the caller does: `outcome.flow()` in `onCompleted`, and the `flow()` of the `CallFailedException` in `onFailed`,
+which the call attached before it told the observers.
 
 An observer watches without taking part. A throwable that is not an `Error` is logged as a warning through
 `System.getLogger("io.github.graphmaquina")`, naming the observer, the callback and the call, never the entity, and changes neither the call nor the other observers; an `Error`
@@ -216,12 +218,12 @@ can when the call ended in one: telling them can need the stack or the memory th
 effort, and that `Error` propagates. That warning is the only record
 logged on `io.github.graphmaquina` itself: the lines of each call, and of each eligibility check, go to its child
 logger `io.github.graphmaquina.runtime`, as [debug a call](logs.md) describes. An observer cannot
-start a transition on its own thread either: an operation or an eligibility check called from an observer throws
-`ReentrantTransitionException`, which is contained. One submitted through `async(...)` runs on the executor's thread
-as a call of its own, unless it runs on the observer's own thread, through an executor that runs tasks inline or a
-wait that runs a `ForkJoinPool`'s queued tasks, in which case the returned future fails with that exception as its
-cause. When a failure
-must fail the call, write a hook, or a `Definition.afterCommit` default for every edge of a machine. Observers run on
+start a call or a check on its own thread either: `execute`, `reevaluate`, `advance`, `choose`, `eligibility` or
+`chooseEligibility`, through a facade too, called from an observer throws `ReentrantTransitionException`, which is
+contained. One submitted through `async(...)` runs on the executor's thread as a call or a check of its own, unless it
+runs on the observer's own thread, through an executor that runs tasks inline or a wait that runs a `ForkJoinPool`'s
+queued tasks, in which case the returned future fails with that exception as its cause. When a failure must fail the
+call, write a hook, or a `Definition.afterCommit` default for every edge of a machine. Observers run on
 the thread of every call, so keep them thread-safe and quick. Add as many as you need: they are notified in the order
 they were added.
 

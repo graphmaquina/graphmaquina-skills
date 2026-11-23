@@ -2,19 +2,19 @@
 name: graphmaquina
 description: Create, change, migrate, debug and test GraphMaquina state machines. Use in Java projects that depend on io.github.graphmaquina, or to migrate a state machine to GraphMaquina.
 license: Apache-2.0
-compatibility: Java 21+ projects that use GraphMaquina 2.0.6 with Gradle or Maven
+compatibility: Java 21+ projects that use GraphMaquina 2.0.7 with Gradle or Maven
 metadata:
-  version: "2.0.6"
-  documentation: "https://graphmaquina.dev/v/2.0.6/"
+  version: "2.0.7"
+  documentation: "https://graphmaquina.dev/v/2.0.7/"
 ---
 
 # GraphMaquina
 
-This skill documents GraphMaquina 2.0.6. GraphMaquina builds typed, graph-based state machines for Java 21: you
+This skill documents GraphMaquina 2.0.7. GraphMaquina builds typed, graph-based state machines for Java 21: you
 declare identified edges with annotations, the build generates a typed API and validates the whole graph, and an
 in-process runtime runs each call against the entity you pass.
 
-The folder `references/` holds the GraphMaquina 2.0.6 documentation, one page per file, and
+The folder `references/` holds the GraphMaquina 2.0.7 documentation, one page per file;
 [references/README.md](references/README.md) is its index. Read only the page and section a step needs.
 
 Follow the developer's project conventions: code style, `var` or explicit types, Lombok, test framework. The examples
@@ -29,21 +29,21 @@ Before anything else, read the GraphMaquina version the project uses, from the f
 - a version catalog entry, such as one in `gradle/libs.versions.toml`;
 - the version of the `io.github.graphmaquina` plugin, or of the `io.github.graphmaquina:graphmaquina-core` coordinates.
 
-Compare it with 2.0.6 and act:
+Compare it with 2.0.7 and act:
 
 - The same version: use the references for everything.
-- Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents 2.0.6, and suggest installing the
+- Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents 2.0.7, and suggest installing the
   skill of their version, tag `v<version>` of `github.com/graphmaquina/graphmaquina-skills`, when that tag exists. Meanwhile, for
-  anything that depends on the API, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
+  any API detail, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
   instead of the references.
 - 1.x, or a version whose `https://graphmaquina.dev/v/<version>/llms.txt` does not answer: tell the developer that this
   skill does not cover it, and do not guess its API.
-- No GraphMaquina in the project: go on only when the developer asked for a new GraphMaquina machine or a migration to
-  GraphMaquina, and configure 2.0.6 as section 4 says.
+- No GraphMaquina in the project: go on only when the developer asked for a new machine or a migration to
+  GraphMaquina, and configure 2.0.7 as section 4 says.
 
 ## 2. Do not explore the jars
 
-Learn the API from the references only. They document the public API of GraphMaquina 2.0.6: annotations,
+Learn the API from the references only. They document the public API of GraphMaquina 2.0.7: annotations,
 generated names, method signatures, outcomes, every `SG` diagnostic, the runtime exceptions and the test assertions.
 
 Look in this order:
@@ -55,12 +55,12 @@ Look in this order:
    [diagnostics](references/diagnostics.md), the [runtime exceptions](references/runtime-exceptions.md) and the
    [testing entry points](references/testing.md#what-each-entry-point-checks).
 3. A text search of the references folder for the identifier.
-4. After a build, the project's own generated sources, which show the exact generated names: their folders are in
+4. After a build, the project's generated sources, which show the exact names; their folders are in
    [generated files](references/generation.md#generated-files).
 
-Never unzip, decompile or list the GraphMaquina jars, and never search the Maven or Gradle caches for them. If
+Never unzip, decompile or list the GraphMaquina jars, or search the Maven or Gradle caches for them. If
 something still seems missing, tell the developer what you looked for and where, and ask how to go on. For another
-version, read that version's llms.txt, as section 1 says.
+version, read its llms.txt, as section 1 says.
 
 ## 3. Ground rules
 
@@ -72,17 +72,23 @@ Each rule links the section that backs it. Read that section when the rule appli
 - The generator writes the vocabulary before javac runs, and the processor writes the runtime classes during
   compilation; for the quickstart, `TicketsGraph`, `TicketRefs` and `TicketActionsRefs`, then `TicketsRuntime` and
   `TicketMachinesRuntime`. Refer to them in source before they exist, and never create placeholder, empty or copied
-  versions of them. Before the first build, an editor or language server may flag them as missing: that is expected,
-  and the build resolves them. [Tickets.java](references/quickstart.md#ticketsjava),
+  versions of them. Before the first build, an editor or language server may flag them as missing; the build resolves
+  them. [Tickets.java](references/quickstart.md#ticketsjava),
   [write the complete flow immediately](references/generation.md#you-can-also-write-the-complete-flow-immediately),
   [IDE workflow](references/generation.md#ide-workflow), [generated names](references/graph-model.md#generated-names)
-- Initialize the entity's state field when the entity is created: `initial` describes the graph and initializes no
+- Initialize the entity's state field at creation: `initial` describes the graph and initializes no
   entity, and a null state aborts the call. The runtime calls the state setter at commit; action code never calls it.
   [Ticket.java](references/quickstart.md#ticketjava),
   [initialize and protect state](references/commit-and-persistence.md#initialize-and-protect-state)
+- Give each machine its own package, with its interface, its two enums, its bindings and the types only it uses. A
+  set of machines from several packages, and what they share, go in their parent package. Where machines share a
+  package, propose the move.
 - An edge is keyed by its origin and its identifier. Two declarations of one key are `SG102`, even with different
-  guards: there is no first-guard-wins. Give each branch its own identifier, or route through an intermediate state
-  whose automatic edges are tried in order. [Understand the graph](references/graph-model.md#understand-the-graph),
+  guards: there is no first-guard-wins. Give each branch its own identifier. When the call's input picks the branch,
+  list them in a facade method annotated `@TicketsGraph.Choice({A, B})`, which tries them in order with that input and
+  runs the first admitted. When the entity's fields decide, route through an intermediate state whose automatic edges
+  are tried in order.
+  [Understand the graph](references/graph-model.md#understand-the-graph), [choices](references/choices.md),
   [choice and junction](references/migrate-from-another-library.md#choice-and-junction-pseudo-states)
 - List the final states in `terminals`: a terminal has no outgoing edge at all, a self-loop included (`SG202`). For
   every cycle, self-loops included, list one of its states in `allowsCycle`, which takes no state outside a cycle.
@@ -92,13 +98,13 @@ Each rule links the section that backs it. Read that section when the rule appli
   one identifier with `Reject`. An edge and a `Reject` for the same key are `SG702`.
   [Policies](references/graph-model.md#policies-every-node-answers)
 - Declare every text an annotation takes, the `otherwise` of a `StatePolicy` and the `reason` of a `Reject`, as a
-  `String` constant inside the machine interface, and reference it: never leave a raw string literal in an annotation.
+  `String` constant inside the machine interface, and reference it, never as a raw string literal.
   An annotation on the interface declaration cannot see the interface's members by simple name, so qualify the
   constant with the interface name or import it statically.
 - An action that can return `ActionOutcome.failed(...)` needs a route: a recovery rule for its failure kind, or an
   `onFailure` edge from the same origin. Without one, the call throws `UnhandledFailureException` and commits nothing.
   [Domain failures](references/actions-and-failures.md#domain-failures)
-- A refused request (`Rejected`) and a routed failure (`Failed`) come back to the caller as an `Outcome`, not as an
+- A refused request (`Rejected`) and a routed failure (`Failed`) come back as an `Outcome`, not an
   exception: the caller reads `status()` or `code()`. Inside a cascade, a refusal aborts the whole call instead.
   [Handle transition outcomes](references/outcomes.md#handle-transition-outcomes),
   [cascade a transition](references/coordination.md#cascade-a-transition)
@@ -125,7 +131,7 @@ Each rule links the section that backs it. Read that section when the rule appli
 
 ## 4. New machine
 
-1. If the project has no GraphMaquina yet, configure Gradle or Maven with version 2.0.6 as
+1. If the project has no GraphMaquina yet, configure Gradle or Maven with version 2.0.7 as
    [install and configure the build](references/installation.md) shows.
 2. Model the machine with the developer: the states, the initial one and the final ones; every edge as identifier,
    origin and destination; its guards, its action and its failure route; the reason each state gives for what it
@@ -138,7 +144,7 @@ Each rule links the section that backs it. Read that section when the rule appli
    workflow. Use the [programmatic DSL](references/dsl.md) only for a graph that must be assembled at runtime.
 4. Build, and fix every diagnostic as section 7 says.
 5. Write the tests of section 8.
-6. Before writing code for anything more the domain needs, such as operation input, recovery rules, automatic
+6. Before coding anything more the domain needs, such as operation input, recovery rules, automatic
    transitions, asynchronous actions, sub-machines, machine sets and cascades, after-commit hooks or eligibility
    checks, find its page as section 9 says.
 
@@ -156,8 +162,7 @@ Done when the build passes with no `SG` diagnostic and the tests of section 8 pa
 3. Make the change and rebuild: renamed declarations regenerate their symbols, and javac names the handwritten
    references to fix ([IDE workflow](references/generation.md#ide-workflow)). Before adding a feature the machine does
    not use yet, such as a recovery rule or an automatic edge, find its page as section 9 says. Keep the build and the
-   tests green, and test what changed as section 8 says, following
-   [testing-advanced.md](references/testing-advanced.md) for recovery rules, automatic edges and sub-machines.
+   tests green, and test what changed as section 8 says.
 4. When the project has goldens or structural snapshots, regenerate them on purpose, as
    [reading and updating](references/testing.md#reading-and-updating) shows, review the diff, and tell the developer
    what changed in the graph.
@@ -171,9 +176,9 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
    transition as source, event, guard, target and action; where its state lives and how its machine instances are
    created, started and stored; every concept of the guide it uses, found under its general name in the guide's
    contents; and every hierarchical, nested or composite state, each one a sub-machine candidate.
-2. Before writing any code, read the guide's procedure and the whole entry of every concept in the inventory: open and
-   read each one, never only a text search of the guide.
-3. Composite states, when the inventory lists any. Before writing any code, read
+2. Before any code, read the guide's procedure and the whole entry of every concept in the inventory, never only
+   a text search of the guide.
+3. Composite states, when the inventory lists any. Before any code, read
    [declare a sub-machine](references/composition.md#declare-a-sub-machine) and
    [sub-machines over the same entity](references/composition.md#sub-machines-over-the-same-entity), then bind each
    composite state to a sub-machine as [composite states](references/migrate-from-another-library.md#composite-states)
@@ -182,15 +187,14 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
    flattened it and why a sub-machine does not fit. GraphMaquina nests machines: never tell the developer that nested
    states are missing or impossible.
 4. Translate every other concept with its entry. For a concept without a direct equivalent, such as entry and exit
-   actions, choice states, [history states](references/migration-patterns.md#history-states) (inside a sub-machine:
+   actions, [history states](references/migration-patterns.md#history-states) (inside a sub-machine:
    [restore a sub-machine](references/migration-patterns.md#restore-a-sub-machine)),
    [parallel regions](references/migration-patterns.md#parallel-regions), timers or deferred events, use the closest
-   pattern its entry gives. [Migration patterns](references/migration-patterns.md) builds and tests each of them
-   except choice states.
+   pattern its entry gives. [Migration patterns](references/migration-patterns.md) builds and tests each of them.
 5. Warn, from a checklist. Before the report, list each sentence of the "What changes" and the notes of every concept
    the original uses, whatever its kind, those translated with a migration pattern included, and mark each one relayed
    or not applicable. Relay each applicable sentence in the report as a warning of its own, in your words, naming the
-   concept, never folded into the description of a pattern. Two are dropped most often: the stored history field is
+   concept and never folded into a pattern's description. Two are dropped most often: the stored history field is
    the developer's to persist with the entity, and an event goes to one region's facade, never to all regions. When the
    original lets exceptions out of an action, relay that an exception the edge does not declare now aborts the call,
    commits nothing and reaches the caller wrapped in a `TransitionAbortedException`
@@ -210,7 +214,7 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
 - An exception at runtime: [what to investigate](references/runtime-exceptions.md#what-to-investigate). A `Rejected` or
   `Failed` outcome is returned, not thrown, except that a refusal inside a cascade aborts the whole call:
   [handle transition outcomes](references/outcomes.md#handle-transition-outcomes).
-- Fix the cause, and keep every check in place: keep `-Werror`, keep the processor enabled, keep the failing test, and
+- Fix the cause, and keep every check in place: keep `-Werror`, the processor enabled and the failing test, and
   leave the generated files to the build. Change the processor configuration or a lint option only as the references
   prescribe, such as declaring Lombok's processor first
   ([add Lombok](references/installation.md#add-lombok-when-you-need-it)), adding `testAnnotationProcessor` for graphs
@@ -248,9 +252,8 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
 
 ## 9. Find a feature
 
-[references/README.md](references/README.md#find-a-feature) is the router. Its "Find a feature" table maps a task, such
-as passing a value from the caller to guards and actions or running a whole machine inside one state, to the page and
-section that covers it. Read that section before writing code for the feature.
+Find the task in the "Find a feature" table, as section 2 says, and read the section it names before coding the
+feature.
 
 ## 10. Report back
 

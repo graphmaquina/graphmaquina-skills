@@ -1,19 +1,21 @@
-> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Automatic transitions
 
-An automatic edge is one the machine takes on its own. After a commit moves an entity, the entity runs its automatic
-chain, unless a failure route that does not continue moved it: while its state has an automatic edge, it makes an
-attempt, which runs the first of those edges that its guards admit. `advance(entity)` makes one attempt on request,
-for an entity whose data changed without a transition. The guards already say when an entity may go on, so the
-application writes no loop of its own: no list of operations to try, no rejections to ignore and no bound against a
-loop that never ends.
+An automatic edge is one the machine takes on its own. By default, after a commit moves an entity, the entity runs its
+automatic chain, unless a failure route that does not continue moved it: while its state has an automatic edge, it
+makes an attempt, which runs the first of those edges that its guards admit. `advance(entity)` makes one attempt on
+request, for an entity whose data changed without a transition, and a graph can declare that the machine takes its
+automatic edges on its own only on `advance`, as [chain only on advance](#chain-only-on-advance) says. The guards
+already say when an entity may go on, so the application writes no loop of its own: no list of operations to try, no
+rejections to ignore and no bound against a loop that never ends.
 
 The library reports and the caller decides. What goes wrong in a chain never throws, an `Error` aside, to the caller
 whose call committed: its outcome carries the failure, the abort or the guard that stopped the chain, and the
-application answers with its own error or calls `advance` later. The examples come from the onboarding of the
-example module, whose tests are in
-[OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java).
+application answers with its own error or calls `advance` later. The examples come from the onboarding and the
+profile of the example module, whose tests are in
+[OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java) and
+[ProfileFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/profile/ProfileFlowTest.java).
 
 ## Contents
 
@@ -21,6 +23,7 @@ example module, whose tests are in
 - [One attempt](#one-attempt)
 - [When the chain runs](#when-the-chain-runs)
 - [Advance an entity](#advance-an-entity)
+- [Chain only on advance](#chain-only-on-advance)
 - [Stops, failures and the limit](#stops-failures-and-the-limit)
 - [Failure routes that continue](#failure-routes-that-continue)
 - [What the caller sees](#what-the-caller-sees)
@@ -31,7 +34,7 @@ example module, whose tests are in
 ## Declare automatic edges
 
 An account sets its password through an operation, and every step after that is automatic. The facade,
-[Accounts](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/Accounts.java), marks those
+[Accounts](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/Accounts.java), marks those
 edges on the interface:
 
 ```java
@@ -80,7 +83,7 @@ of sub-machines, the commit, the hooks and the watch reactions. When no candidat
 order tried. An attempt never returns `Rejected`, since it requests no identifier.
 
 The guards of the onboarding, in
-[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
+[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
 refuse with the reason the caller reads:
 
 ```java
@@ -104,12 +107,13 @@ marked automatic, it is a candidate of every attempt from its origin.
 
 ## When the chain runs
 
-After the commit of any root call, each entity with a hop or a sub-machine start in that commit runs its chain, in the
-order of the commit's log. Every call counts: an operation, an `execute`, a `reevaluate`, an `advance`, a watch
-reaction and an attempt, and so does every entity they move, a peer that a cascade moved, a child that its parent
-started and a parent that a child's exit moved. A watch reacts only to a peer whose final state differs from its
-original one, but a chain also runs after a self-loop, such as the account's `TOUCH`, and after hops that bring the
-entity back where it started: a self-loop often means that data changed.
+On a machine that chains after every commit, the default, each entity with a hop or a sub-machine start in the commit of
+any root call runs its chain, in the order of the commit's log. Every call counts: an operation, an `execute`, a
+`choose`, a `reevaluate`, an `advance`, a watch reaction and an attempt, and so does every entity they move, a peer that
+a cascade moved, a child that its parent started and a parent that a child's exit moved. A watch reacts only to a peer
+whose final state differs from its original one, but a chain also runs after a self-loop, such as the account's `TOUCH`,
+and after hops that bring the entity back where it started: a self-loop often means that data changed. A machine
+declared `ON_ADVANCE` chains only after an `advance`, as [chain only on advance](#chain-only-on-advance) says.
 
 The chain starts from the state the commit left the entity in, read from the commit's log, not from the entity. While
 that state has an automatic edge, it makes an attempt, a root call of its own, which reads the entity's state as any
@@ -121,14 +125,14 @@ ends without an attempt in a state that has no automatic edge.
 ![After setPassword commits the account from NEW to PASSWORD_SET, and once any hooks and watch reactions of that commit
 ran, the account runs its automatic chain as step 8: COMPLETE_INFO to INFO_SET, COMPLETE_ADDRESS to
 ADDRESS_SET and, once ACTIVATE_PREMIUM is refused, ACTIVATE to ACTIVE, each attempt a call of its own that
-automaticSteps() lists.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/automatic-chain.svg)
+automaticSteps() lists.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/automatic-chain.svg)
 
 The chains run as step 8 of [the commit sequence](commit-and-persistence.md#commit-hooks-and-observers), once the
 commit's hooks ran and its [watch reactions](coordination.md#watch-other-machines) were dispatched. So every state an
 entity commits fires its watches before the entity moves on: an owner that waits for all its items in a state sees
 each item there, even one that then goes on by itself.
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 an account whose personal info and address are complete reaches `ACTIVE` in the call that sets its password. The
 outcome is the operation's own, to `PASSWORD_SET`, and its `automaticSteps()` list the three attempts that followed,
 the third once `ACTIVATE_PREMIUM` refused an account that is not premium. A premium account, whose data is otherwise
@@ -164,7 +168,7 @@ own log left it in, its attempt reads the live state, and the chain can go on pa
 other call's chain. Start calls from a hook with the synchronous facade.
 [Records, journals and reactions](outcomes.md#records-journals-and-reactions) says in which outcome each chain is
 listed. A new entity has committed nothing, so the automatic edges of its initial state run only when `advance` asks
-for them; a child that its parent starts is the exception, since a start counts.
+for them; a child that its parent starts is the exception, since a start counts, unless its machine is `ON_ADVANCE`.
 
 Each attempt is a call of its own. [Observers](commit-and-persistence.md#observers) see it, with the origin
 `AUTOMATIC_STEP` and the request `ADVANCE`, inside the `AUTOMATIC_STEPS` phase of the call that triggered it. It has
@@ -188,7 +192,7 @@ failure throws what `execute` would throw, an `UnhandledFailureException` for a 
 included, and a `null` entity, or a call made where no call may start, is refused before the call starts, as
 `reevaluate` refuses them.
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 an account stopped at `INFO_SET` for want of its address goes on once the address arrives, and a second `advance`,
 on `ACTIVE`, has nothing left to do:
 
@@ -208,6 +212,69 @@ assertThat(accounts.advance(account)).isIgnored().hasReason(IgnoreReason.NO_AUTO
 
 An operation that commits a self-loop does the same with a hop of its own: `touch` moves an account from
 `PASSWORD_SET` to itself, and its commit runs the account's chain, as `aSelfLoopRunsTheChainToo` checks.
+
+## Chain only on advance
+
+A machine takes its automatic edges after every commit unless its graph says otherwise.
+`automaticChain = AutomaticChain.ON_ADVANCE` on the `Definition`, or `automaticChain(AutomaticChain.ON_ADVANCE)` on the
+DSL builder, makes `advance(entity)` the only call after which the machine takes them on its own;
+`definition().automaticChain()` reads the setting, which is `AFTER_COMMIT` when the graph declares nothing. A request
+that names an automatic edge, an `execute` of its identifier, a choice's candidate, a watch rule or a cascade, still
+runs that edge, and its commit chains no entity of that machine, while the entities of an `AFTER_COMMIT` machine that it
+moved chain as usual. A profile fits: saving what the user typed must not complete it behind the user's back. The guards
+`hasName` and `hasAddress` are static methods of
+[ProfileGuards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/profile/ProfileGuards.java). In
+[Profiles](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/profile/Profiles.java), `NAME` and
+`COMPLETE` are the automatic edges that they guard, and the operation `edit` is a self-loop of `DRAFT` and of `NAMED`:
+
+```java
+@ProfilesGraph.Definition(initial = DRAFT, terminals = COMPLETE, allowsCycle = {DRAFT, NAMED},
+        automaticChain = AutomaticChain.ON_ADVANCE, state = ProfileRefs.Status.class, id = ProfileRefs.Id.class)
+```
+
+```java
+@ProfilesGraph.Transition(id = NAME, from = DRAFT, to = NAMED, automatic = true,
+        guards = ProfileGuardsRefs.HasName.class)
+@ProfilesGraph.Transition(id = ProfileTransition.COMPLETE, from = NAMED, to = COMPLETE, automatic = true,
+        guards = ProfileGuardsRefs.HasAddress.class)
+public interface Profiles extends Machine<Profile, ProfileStatus, ProfileTransition> {
+
+    @ProfilesGraph.Transition(id = EDIT, from = DRAFT, to = DRAFT)
+    @ProfilesGraph.Transition(id = EDIT, from = NAMED, to = NAMED)
+    Outcome<Profile, ProfileStatus, ProfileTransition> edit(Profile profile);
+```
+
+On such a machine, `advance` makes its attempt and then runs the chain of that same entity after the attempt's commit,
+over every automatic edge. The commit of any other call runs no chain for an entity of the machine: an operation, an
+`execute`, a [choice](choices.md#after-the-commit), a `reevaluate`, a watch reaction, a cascade, the start or the exit
+of a sub-machine, and an attempt or a chain of another entity. In
+[ProfileFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/profile/ProfileFlowTest.java),
+a profile that has its name and its address stays in `DRAFT` after `edit`, with no step in its outcome:
+
+```java
+Outcome<Profile, ProfileStatus, ProfileTransition> outcome = profiles.edit(profile);
+
+assertThat(outcome).isApplied().requestedTransition(EDIT).movedTo(DRAFT).hasEntityState(Profile::status, DRAFT);
+assertTrue(outcome.automaticSteps().isEmpty());
+assertEquals(DRAFT, profile.status());
+```
+
+A single `advance` then takes it to `COMPLETE`, `NAME` as its own attempt and `COMPLETE` as the step that followed:
+
+```java
+Outcome<Profile, ProfileStatus, ProfileTransition> outcome = profiles.advance(profile);
+
+assertThat(outcome).isApplied().requestedTransition(NAME).hasEntityState(Profile::status, COMPLETE)
+        .automaticSteps().forEntity(ProfilesRuntime.KEY, profile).single().isDone().outcome().isApplied()
+        .requestedTransition(ProfileTransition.COMPLETE).movedTo(COMPLETE);
+```
+
+A call made on the same thread inside the post-commit that moves the advanced entity decides its chain, as
+[the deepest commit](#when-the-chain-runs) does by default. On this machine it stops the chain, unless that call is
+itself an `advance` of the entity, such as a hook's call to `advance`, which chains it in its own outcome. The build
+refuses `ON_ADVANCE` on a graph with no automatic edge (`SG110`) and on a manual edge that declares a failure route
+that continues the chain, which would never chain (`SG306`). The structural snapshot records `/automaticChain` as
+`ON_ADVANCE`, written only then, and `hasAutomaticChain(chain)` of the graph assertion compares it.
 
 ## Stops, failures and the limit
 
@@ -254,13 +321,17 @@ warns; the library keeps no count per thread.
 
 A failure route, an `onFailure` or a recovery rule, stops its entity's chain by default: the entity stays in the
 recovery state until an operation or an `advance` moves it. A route declared to continue lets the chain go on from the
-recovery state instead. It may be declared on any edge, automatic or not: when the call of the application fails by
-such a route, its entity runs its chain from the recovery state too. With annotations, a `Recovery` takes
-`continueChain = true`, as `COMPLETE_ADDRESS` declares above, and a `Transition` takes `onFailureContinues = true`,
-which needs an `onFailure`. A continuing route leads to a state with an automatic edge, or the build fails.
+recovery state instead. It may be declared on any edge, automatic or not: when the call of the application fails by such
+a route, its entity runs its chain from the recovery state too. On a machine declared `ON_ADVANCE`, the route is
+declared on an automatic edge only, since a manual edge never chains there (`SG306`): an `advance`, or an attempt of its
+chain, that fails by it goes on from the recovery state, while an `execute` of that automatic edge, or any other request
+that names it, fails by it to the recovery state, and its commit chains no entity of that machine. With annotations, a
+`Recovery` takes `continueChain = true`, as `COMPLETE_ADDRESS` declares above, and a `Transition` takes
+`onFailureContinues = true`, which needs an `onFailure`. A continuing route leads to a state with an automatic edge, or
+the build fails.
 
 The action of `COMPLETE_ADDRESS`, in
-[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
+[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
 returns the failure kind that the route takes when the verifier cannot verify the address:
 
 ```java
@@ -272,7 +343,7 @@ public ActionOutcome verifyAddress(TransitionContext<Account, AccountStatus, Acc
 }
 ```
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 the failure takes `FLAG` to `FLAGGED`, the chain goes on through `REQUEST_REVIEW`, and the account ends in `REVIEW`.
 The call's outcome is still `Applied`, and it carries the failure:
 
@@ -303,7 +374,7 @@ one that aborted. Their types carry wildcards, because the attempts can be of ot
 that a call started by a hook decided is in that call's own outcome, which only the hook receives, so they do not find
 it.
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 an account without its address stops at `INFO_SET`, and the block says why:
 
 ```java
@@ -316,12 +387,13 @@ assertEquals(INFO_SET, account.status());
 Outcome.Ignored<?, ?, ?> block = outcome.automaticBlock().orElseThrow();
 assertEquals("address is incomplete", block.rejections().getFirst().reason());
 assertThat(outcome).isApplied().automaticBlock().hasReason(IgnoreReason.NO_CANDIDATE_ADMITTED)
-        .rejections().single().transition(COMPLETE_ADDRESS).isRejectedByGuardNamed("addressComplete");
+        .rejections().single().transition(COMPLETE_ADDRESS)
+                .isRejectedByGuardNamed(AccountActionsRefs.AddressComplete.NAME);
 ```
 
 A guard that stops the chain is no error for the library: the application decides. The library depends on no web
 framework, so the example's
-[OnboardingController](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/OnboardingController.java)
+[OnboardingController](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/OnboardingController.java)
 throws its own `BadRequestException`, which a framework's exception handler would turn into a 400: for a call that
 was rejected, for an automatic step that failed, even by a route that let the chain go on, and for one that stopped at
 a guard. Otherwise it answers with the state the account reached. `theControllerAnswersBadRequest` runs each case:
@@ -360,7 +432,7 @@ covers the rest of what a database transaction does not get from the in-memory c
 
 ## The same graph with the DSL
 
-[OnboardingDslTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingDslTest.java)
+[OnboardingDslTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingDslTest.java)
 declares the onboarding's graph with the [DSL](dsl.md). It checks that the graph's structural snapshot is the
 annotated graph's, and that a machine built from it takes a complete account to `ACTIVE` in the call that sets its
 password:
@@ -416,8 +488,8 @@ an automatic chain.
 draws an automatic edge in the theme's `automatic` color, blue by default, and prints `[auto]` on the line under the
 identifier of a state's only automatic edge, `[auto 1]`, `[auto 2]` and so on, in the declared order, when there are
 several, and `continues` in a route that continues. The onboarding's
-[golden diagram](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/resources/golden/account.dot) and
-[contract snapshot](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/resources/contracts/account.graph) pin its marks and its order.
+[golden diagram](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/resources/golden/account.dot) and
+[contract snapshot](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/resources/contracts/account.graph) pin its marks and its order.
 An eligibility check answers for an automatic edge as for any other. The assertions of `graphmaquina-test` on automatic
 edges, on `automaticSteps()` and on the three searches are in [testing samples](testing-advanced.md#automatic-transitions).
 

@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Inspect graphs and export diagrams
 
@@ -33,7 +33,9 @@ System.out.println(graph.policy(TicketState.OPEN).reasonFor(TicketTransition.APP
 `transitions()` every declared edge, ordered by origin, then identifier, then destination, `automaticFrom` the
 automatic edges that leave a state, in the order an advance tries them, and `findTransition` the
 single spec keyed by `(from, id)`, as an `Optional` that is empty when no edge is declared. `key()`, `initial()`,
-`terminals()` and `hasAsync()`, true when some edge is asynchronous, describe the machine as a whole.
+`terminals()` and `hasAsync()`, true when some edge is asynchronous, describe the machine as a whole, and
+`automaticChain()` says when it takes its automatic edges on its own, after every commit, `AFTER_COMMIT`, or only on
+`advance`, `ON_ADVANCE`.
 
 ```mermaid
 classDiagram
@@ -45,6 +47,7 @@ classDiagram
         +transitions() List~TransitionSpec~
         +outgoingFrom(state) List~TransitionSpec~
         +automaticFrom(state) List~TransitionSpec~
+        +automaticChain() AutomaticChain
         +findTransition(from, id) Optional~TransitionSpec~
         +policy(state) StatePolicy
         +watch(state) Optional~WatchSpec~
@@ -382,12 +385,12 @@ resources checks visual output only; keep those tests separate from contract and
 [testing guide](testing.md#goldens-and-structural-snapshots) describes both APIs and their Gradle and
 Maven update configuration.
 
-[The illustrated ticket workflow](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/ticket-workflow.svg) summarizes the quickstart's edges. The
+[The illustrated ticket workflow](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/ticket-workflow.svg) summarizes the quickstart's edges. The
 exporter produces its own labels from the definition. The repository keeps exact expected exports in
-[the example's golden diagrams](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/resources/golden).
+[the example's golden diagrams](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/resources/golden).
 
 The illustrations in this guide are maintained separately from the Graphviz exporter. Their accessible SVG
-sources, with a table of what each one shows, are in [docs/images](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/docs/images/README.md).
+sources, with a table of what each one shows, are in [docs/images](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/README.md).
 
 ---
 

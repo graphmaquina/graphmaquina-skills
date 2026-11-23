@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Testing samples: recovery, sub-machines, automatic transitions and the call's flow
 
@@ -19,7 +19,7 @@ route a call took on the call's outcome, and the rules an edge declares on the d
 These samples use the publication machine of that guide section. `graph(action)` declares it with `action` on
 `PUBLISH`, `asyncGraph(action)` declares it with an asynchronous one, and `machine(graph)` builds a standalone
 machine with a five-second `asyncTimeout`.
-[TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) writes out
+[TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) writes out
 those helpers and the publication types, cuts the samples out of this page, compiles them against the published
 jars and runs them.
 
@@ -128,7 +128,7 @@ A state can hold a sub-machine, which the [programmatic DSL](dsl.md) declares wi
 `submachine(...)`. These samples use an order whose `PAYING` state holds its payment. `orders()` declares the order
 graph: its binding reaches the payment of an order and the order of a payment, and the payment's terminal states
 `CAPTURED` and `DECLINED` exit through `PAY` and `REFUSE`. `ORDERS` and `PAYMENTS` are the keys of the two machines.
-[TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) writes out
+[TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) writes out
 those helpers and types, and the ones named below, cuts the samples out of this page, compiles them against the
 published jars and runs them.
 
@@ -332,12 +332,14 @@ Each key reads its own field, so `changes()` reports a moved state under its own
 ## Automatic transitions
 
 The graph declares an edge automatic, and an `advance`, or the chain that a commit triggers, takes it without a
-request for its identifier, as [automatic transitions](automatic-transitions.md) explains. These are the views that
+request for its identifier, as [automatic transitions](automatic-transitions.md) explains; on a machine declared
+`ON_ADVANCE`, only an `advance` and the chain after it do. These are the views that
 assert on that, none of which runs an action, a guard or a hook.
 
 On the graph, `assertThat(definition).automaticFrom(state).containsExactly(...)` compares the identifiers of the
 automatic edges that leave a state, in the order an advance tries them, which a state with two or more automatic edges
-declares; with no argument it says the state has none. On an edge, `isAutomatic()` and `isManual()` read the mark,
+declares; with no argument it says the state has none, and `hasAutomaticChain(AutomaticChain.ON_ADVANCE)`, or
+`AFTER_COMMIT`, compares when the machine takes its automatic edges. On an edge, `isAutomatic()` and `isManual()` read the mark,
 `onFailureContinues()` says that its `onFailure` route continues the chain, and `recoveryContinues(kind)` that the
 recovery rule it declares for that failure kind does.
 
@@ -384,7 +386,7 @@ the final entry. Build the machine on a clock the test controls.
 
 These samples use the `graph(action)` helper, the publication types and their machine key `KEY` of
 [failure kinds and recovery rules](#failure-kinds-and-recovery-rules), and build their machine here.
-[TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) writes out
+[TestingGuideFragmentsTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-test/src/test/java/consumer/TestingGuideFragmentsTest.java) writes out
 that helper and those types, cuts the samples out of this page, compiles them against the published jars and runs
 them, the four in one method.
 
@@ -485,7 +487,7 @@ TrailAssert.assertThat(entries)
         .isInTimeOrder();
 ```
 
-The shop's [OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java)
+The shop's [OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java)
 asserts the flow and the trail of a cancellation that commits, and those of one that aborts, which
 [failures and the journal](testing-samples.md#failures-and-the-journal) shows. Its set is built with `recordTrail()`, on the system
 clock, so it asserts the entries of a trail and their order, never their instants.

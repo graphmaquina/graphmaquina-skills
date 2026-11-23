@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.6 documentation, copied from tag v2.0.6 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Actions, guards and failure routes
 
@@ -27,7 +27,9 @@ or an asynchronous one whose stage is null or completes with null, aborts the ca
 and produces `Rejected` with `RejectionKind.GUARD` and the guard's name. In a graph the DSL built, the guards of one
 edge have distinct names, so the name tells which one rejected: a generated guard is named by its member's simple name,
 and two guards of one name on an edge are refused with `SG105`. A definition assembled without the DSL is not checked
-for it. Guard code should be free of mutations and external side effects.
+for it. Guard code should be free of mutations and external side effects. A guard starts no call, but a synchronous
+guard may start a check of an entity that no enclosing call or check holds, as
+[check another machine from a guard](eligibility.md#check-another-machine-from-a-guard) shows.
 
 Without an input the optional is empty. A null input is refused before the call starts, as a null entity is, with a
 `NullPointerException` that names the parameter. A value of an incompatible class throws `ClassCastException`;
@@ -138,7 +140,7 @@ one of 400 edges without actions, 803 calls, compiled, and one of 600 edges fail
 to a few hundred calls.
 
 The full action implementation is in
-[OrderActions.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.6/graphmaquina-example/src/main/java/io/github/graphmaquina/example/order/OrderActions.java).
+[OrderActions.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/order/OrderActions.java).
 
 ## Recover by failure kind and exception type
 

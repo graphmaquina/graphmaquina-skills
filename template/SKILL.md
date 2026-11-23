@@ -80,6 +80,9 @@ Each rule links the section that backs it. Read that section when the rule appli
   entity, and a null state aborts the call. The runtime calls the state setter at commit; action code never calls it.
   [Ticket.java](references/quickstart.md#ticketjava),
   [initialize and protect state](references/commit-and-persistence.md#initialize-and-protect-state)
+- Give each machine its own package, with its interface, its two enums, its bindings and the types only it uses. A
+  set of machines from several packages, and what they share, go in their parent package. Where machines share a
+  package, propose the move.
 - An edge is keyed by its origin and its identifier. Two declarations of one key are `SG102`, even with different
   guards: there is no first-guard-wins. Give each branch its own identifier. When the call's input picks the branch,
   list them in a facade method annotated `@TicketsGraph.Choice({A, B})`, which tries them in order with that input and
@@ -159,8 +162,7 @@ Done when the build passes with no `SG` diagnostic and the tests of section 8 pa
 3. Make the change and rebuild: renamed declarations regenerate their symbols, and javac names the handwritten
    references to fix ([IDE workflow](references/generation.md#ide-workflow)). Before adding a feature the machine does
    not use yet, such as a recovery rule or an automatic edge, find its page as section 9 says. Keep the build and the
-   tests green, and test what changed as section 8 says, following
-   [testing-advanced.md](references/testing-advanced.md) for recovery rules, automatic edges and sub-machines.
+   tests green, and test what changed as section 8 says.
 4. When the project has goldens or structural snapshots, regenerate them on purpose, as
    [reading and updating](references/testing.md#reading-and-updating) shows, review the diff, and tell the developer
    what changed in the graph.
@@ -250,9 +252,8 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
 
 ## 9. Find a feature
 
-[references/README.md](references/README.md#find-a-feature) is the router. Its "Find a feature" table maps a task, such
-as passing a value from the caller to guards and actions or running a whole machine inside one state, to the page and
-section that covers it. Read that section before coding the feature.
+Find the task in the "Find a feature" table, as section 2 says, and read the section it names before coding the
+feature.
 
 ## 10. Report back
 

@@ -34,7 +34,7 @@ Compare it with {{version}} and act:
 - The same version: use the references for everything.
 - Another 2.0.x, 2.0.1 or later: tell the developer that this skill documents {{version}}, and suggest installing the
   skill of their version, tag `v<version>` of `github.com/graphmaquina/graphmaquina-skills`, when that tag exists. Meanwhile, for
-  anything that depends on the API, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
+  any API detail, read `https://graphmaquina.dev/v/<version>/llms.txt` and the pages it lists
   instead of the references.
 - 1.x, or a version whose `https://graphmaquina.dev/v/<version>/llms.txt` does not answer: tell the developer that this
   skill does not cover it, and do not guess its API.
@@ -76,13 +76,14 @@ Each rule links the section that backs it. Read that section when the rule appli
   them. [Tickets.java](references/quickstart.md#ticketsjava),
   [write the complete flow immediately](references/generation.md#you-can-also-write-the-complete-flow-immediately),
   [IDE workflow](references/generation.md#ide-workflow), [generated names](references/graph-model.md#generated-names)
-- Initialize the entity's state field when the entity is created: `initial` describes the graph and initializes no
+- Initialize the entity's state field at creation: `initial` describes the graph and initializes no
   entity, and a null state aborts the call. The runtime calls the state setter at commit; action code never calls it.
   [Ticket.java](references/quickstart.md#ticketjava),
   [initialize and protect state](references/commit-and-persistence.md#initialize-and-protect-state)
 - An edge is keyed by its origin and its identifier. Two declarations of one key are `SG102`, even with different
   guards: there is no first-guard-wins. Give each branch its own identifier. When the call's input picks the branch, list
-  them in a `Choice`: it tries them in order with that input and runs the first admitted. When the entity's fields
+  them in a facade method annotated `@TicketsGraph.Choice({A, B})`, which tries them in order with that input and runs
+  the first admitted. When the entity's fields
   decide, route through an intermediate state whose automatic edges are tried in order.
   [Understand the graph](references/graph-model.md#understand-the-graph), [choices](references/choices.md),
   [choice and junction](references/migrate-from-another-library.md#choice-and-junction-pseudo-states)
@@ -173,9 +174,9 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
    transition as source, event, guard, target and action; where its state lives and how its machine instances are
    created, started and stored; every concept of the guide it uses, found under its general name in the guide's
    contents; and every hierarchical, nested or composite state, each one a sub-machine candidate.
-2. Before writing any code, read the guide's procedure and the whole entry of every concept in the inventory, never only
+2. Before any code, read the guide's procedure and the whole entry of every concept in the inventory, never only
    a text search of the guide.
-3. Composite states, when the inventory lists any. Before writing any code, read
+3. Composite states, when the inventory lists any. Before any code, read
    [declare a sub-machine](references/composition.md#declare-a-sub-machine) and
    [sub-machines over the same entity](references/composition.md#sub-machines-over-the-same-entity), then bind each
    composite state to a sub-machine as [composite states](references/migrate-from-another-library.md#composite-states)

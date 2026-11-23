@@ -81,10 +81,10 @@ Each rule links the section that backs it. Read that section when the rule appli
   [Ticket.java](references/quickstart.md#ticketjava),
   [initialize and protect state](references/commit-and-persistence.md#initialize-and-protect-state)
 - An edge is keyed by its origin and its identifier. Two declarations of one key are `SG102`, even with different
-  guards: there is no first-guard-wins. Give each branch its own identifier. When the call's input picks the branch, list
-  them in a facade method annotated `@TicketsGraph.Choice({A, B})`, which tries them in order with that input and runs
-  the first admitted. When the entity's fields
-  decide, route through an intermediate state whose automatic edges are tried in order.
+  guards: there is no first-guard-wins. Give each branch its own identifier. When the call's input picks the branch,
+  list them in a facade method annotated `@TicketsGraph.Choice({A, B})`, which tries them in order with that input and
+  runs the first admitted. When the entity's fields decide, route through an intermediate state whose automatic edges
+  are tried in order.
   [Understand the graph](references/graph-model.md#understand-the-graph), [choices](references/choices.md),
   [choice and junction](references/migrate-from-another-library.md#choice-and-junction-pseudo-states)
 - List the final states in `terminals`: a terminal has no outgoing edge at all, a self-loop included (`SG202`). For

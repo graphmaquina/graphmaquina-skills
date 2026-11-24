@@ -59,12 +59,11 @@ Look in this order:
    [generated files](references/generation.md#generated-files).
 
 Never unzip, decompile or list the GraphMaquina jars, or search the Maven or Gradle caches for them. If
-something still seems missing, tell the developer what you looked for and where, and ask how to go on. For another
-version, read its llms.txt, as section 1 says.
+something still seems missing, tell the developer what you looked for and where, and ask how to go on.
 
 ## 3. Ground rules
 
-Each rule links the section that backs it. Read that section when the rule applies.
+Each rule links its backing section; read it when the rule applies.
 
 - Write two enums by hand, one of states and one of transition identifiers. GraphMaquina derives no identifier from an
   action name, a method name or a destination.
@@ -72,8 +71,8 @@ Each rule links the section that backs it. Read that section when the rule appli
 - The generator writes the vocabulary before javac runs, and the processor writes the runtime classes during
   compilation; for the quickstart, `TicketsGraph`, `TicketRefs` and `TicketActionsRefs`, then `TicketsRuntime` and
   `TicketMachinesRuntime`. Refer to them in source before they exist, and never create placeholder, empty or copied
-  versions of them. Before the first build, an editor or language server may flag them as missing; the build resolves
-  them. [Tickets.java](references/quickstart.md#ticketsjava),
+  versions of them. An editor may flag them as missing until the first build.
+  [Tickets.java](references/quickstart.md#ticketsjava),
   [write the complete flow immediately](references/generation.md#you-can-also-write-the-complete-flow-immediately),
   [IDE workflow](references/generation.md#ide-workflow), [generated names](references/graph-model.md#generated-names)
 - Initialize the entity's state field at creation: `initial` describes the graph and initializes no
@@ -91,7 +90,8 @@ Each rule links the section that backs it. Read that section when the rule appli
   [Understand the graph](references/graph-model.md#understand-the-graph), [choices](references/choices.md),
   [choice and junction](references/migrate-from-another-library.md#choice-and-junction-pseudo-states)
 - List the final states in `terminals`: a terminal has no outgoing edge at all, a self-loop included (`SG202`). For
-  every cycle, self-loops included, list one of its states in `allowsCycle`, which takes no state outside a cycle.
+  every cycle, self-loops included but not gates, list one of its states in `allowsCycle`, which takes no state outside
+  a cycle.
   Every state is reachable from `initial`, and every state that is not terminal has an outgoing edge.
   [Structural rules](references/graph-model.md#structural-rules)
 - Give every state that is not terminal a `StatePolicy` with its `otherwise` reason (`SG701`), and word the refusal of
@@ -101,6 +101,8 @@ Each rule links the section that backs it. Read that section when the rule appli
   `String` constant inside the machine interface, and reference it, never as a raw string literal.
   An annotation on the interface declaration cannot see the interface's members by simple name, so qualify the
   constant with the interface name or import it statically.
+- Keep a guard's I/O in the guard, not before the call: share a service's answer with `ctx.memo`, let its failure
+  reach the caller with `propagates`, read the time with `ctx.now()`. [Guard evidence](references/guard-evidence.md)
 - An action that can return `ActionOutcome.failed(...)` needs a route: a recovery rule for its failure kind, or an
   `onFailure` edge from the same origin. Without one, the call throws `UnhandledFailureException` and commits nothing.
   [Domain failures](references/actions-and-failures.md#domain-failures)
@@ -135,7 +137,9 @@ Each rule links the section that backs it. Read that section when the rule appli
    [install and configure the build](references/installation.md) shows.
 2. Model the machine with the developer: the states, the initial one and the final ones; every edge as identifier,
    origin and destination; its guards, its action and its failure route; the reason each state gives for what it
-   refuses; and the intended cycles. Ask when the domain is ambiguous instead of guessing.
+   refuses; and the intended cycles. Ask when the domain is ambiguous instead of guessing. A one-step graph over a
+   never-stored object with an invented identity is a predicate: ask first
+   ([stable identity](references/commit-and-persistence.md#stable-identity)).
 3. Write the files in the shape of the [quickstart](references/quickstart.md): the two enums; the entity, with
    `@GraphProperty` on its state and its identity; a bindings class with `@GraphAction`, `@GraphGuard` and
    `@GraphHook` methods, whose signatures are in [method signatures](references/graph-model.md#method-signatures);
@@ -144,9 +148,8 @@ Each rule links the section that backs it. Read that section when the rule appli
    workflow. Use the [programmatic DSL](references/dsl.md) only for a graph that must be assembled at runtime.
 4. Build, and fix every diagnostic as section 7 says.
 5. Write the tests of section 8.
-6. Before coding anything more the domain needs, such as operation input, recovery rules, automatic
-   transitions, asynchronous actions, sub-machines, machine sets and cascades, after-commit hooks or eligibility
-   checks, find its page as section 9 says.
+6. Before coding anything more the domain needs, such as recovery rules, automatic transitions, sub-machines or
+   cascades, find its page as section 9 says.
 
 Done when the build passes with no `SG` diagnostic and the tests of section 8 pass.
 
@@ -162,7 +165,8 @@ Done when the build passes with no `SG` diagnostic and the tests of section 8 pa
 3. Make the change and rebuild: renamed declarations regenerate their symbols, and javac names the handwritten
    references to fix ([IDE workflow](references/generation.md#ide-workflow)). Before adding a feature the machine does
    not use yet, such as a recovery rule or an automatic edge, find its page as section 9 says. Keep the build and the
-   tests green, and test what changed as section 8 says.
+   tests green, and test what changed as section 8 says. After an upgrade, replace the workarounds
+   [upgrading](references/upgrading.md) lists.
 4. When the project has goldens or structural snapshots, regenerate them on purpose, as
    [reading and updating](references/testing.md#reading-and-updating) shows, review the diff, and tell the developer
    what changed in the graph.
@@ -216,8 +220,7 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
   [handle transition outcomes](references/outcomes.md#handle-transition-outcomes).
 - Fix the cause, and keep every check in place: keep `-Werror`, the processor enabled and the failing test, and
   leave the generated files to the build. Change the processor configuration or a lint option only as the references
-  prescribe, such as declaring Lombok's processor first
-  ([add Lombok](references/installation.md#add-lombok-when-you-need-it)), adding `testAnnotationProcessor` for graphs
+  prescribe, such as adding `testAnnotationProcessor` for graphs
   declared under the test sources, or `-Xlint:-processing` for a test compilation that runs the processor
   ([source sets](references/installation.md#source-sets-and-generator-selection)).
 
@@ -227,12 +230,11 @@ following [its procedure](references/migrate-from-another-library.md#the-procedu
   ([install](references/testing.md#install)). The static import `GraphAssertions.assertThat` is the entry point for
   outcomes, definitions and entities.
 - Build the set in the test as the application does, with real entities and test doubles only for what lies outside
-  the process ([your first test](references/testing.md#your-first-test)). Tests that only call the generated main
-  facades normally need no `testAnnotationProcessor`
-  ([source sets](references/installation.md#source-sets-and-generator-selection)).
+  the process ([your first test](references/testing.md#your-first-test)).
 - Cover:
   - every edge applied: `isApplied()`, `movedTo` and the live state with `hasEntityState`;
-  - every guard rejection: `isRejectedByGuardNamed`;
+  - every guard rejection: `isRejectedByGuardNamed` with the guard's `...Refs.<Guard>.NAME`;
+  - every choice: `chose` or `admittedNone` on its check;
   - every failure route: `isFailed()`, `hasFailureTransition` and `movedTo`;
   - every policy answer of a state that is not terminal: `hasNoTransition()` and `hasReason` with the policy's exact
     reason, both, or `rejects(id, reason)` on the definition's policy;

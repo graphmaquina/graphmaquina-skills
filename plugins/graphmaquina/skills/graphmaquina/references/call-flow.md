@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # The call's flow
 
@@ -16,7 +16,7 @@ flow and cascades CANCEL to the items, whose steps put their restocks; each writ
 the trail lists each hop with its instant. The commit writes the states, the hooks apply the restocks, and the
 caller receives the flow frozen in the outcome. A failure route drops what its step took and wrote, while earlier
 writes stay. When an item is PACKED, its element aborts and is dropped, the cascade aborts the call, nothing
-commits, and the failure's flow keeps the other writes and ends its trail with Failed.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/call-flow.svg)
+commits, and the failure's flow keeps the other writes and ends its trail with Failed.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/call-flow.svg)
 
 The same cancellation as a sequence, for one item, with the shop's actions and hook:
 
@@ -43,7 +43,7 @@ and gets a `FlowView`, without `put` or `remove`. A hook that takes a `CommitCon
 `commit.flow()`, a `FlowContext`, once the call committed; a hook that takes the entity alone does not see it. A value
 lives under a `FlowKey`, a name and a class: two keys with the same name and class read and write the same value.
 Declare each key once, where every step that uses it can see it, as the shop does in
-[ShopFlow.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/main/java/io/github/graphmaquina/example/ShopFlow.java):
+[ShopFlow.java](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/ShopFlow.java):
 
 ```java
 public final class ShopFlow {
@@ -165,7 +165,7 @@ Hooks run in the order of the committed hops, so the order lists its items in th
 When the step of an item aborts, for instance because the item is `PACKED` and has no `CANCEL` edge, the `COLLECT`
 cascade aborts the call once it tried every item: nothing commits, no hook runs, and no item gets a batch, although
 the flow the failure hands out holds the restock of every item whose step completed.
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) asserts the
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) asserts the
 cancellation that commits and the one that aborts. When an action fails after its put and its step takes a failure
 route, the route drops the write, and the hook that runs for the recovering hop finds nothing. Had `restock` set the
 batch on the item itself, the item would keep it in both cases.
@@ -246,12 +246,12 @@ with the reaction's outcome, never in the trail of the call that triggered it. S
 whose trail `AutomaticStep.Done` hands out with the attempt's outcome.
 
 The generated builder of a [machine set](coordination.md#build-and-manage-machine-sets) offers `recordTrail()` and
-`recordTrail(InstantSource clock)` as well, and hands them to the `StateMachines.Builder` of every machine of the set.
+`clock(InstantSource clock)` as well, and hands them to the `StateMachines.Builder` of every machine of the set.
 Since the root machine decides and every machine of the set records, every call made through the set records its
 trail, the peers it cascades to and the exits of sub-machines its steps run included, and so do each watch reaction
 and each automatic attempt, whose machine is one of the set. The set has no variant for one of its machines: a registry
 built with `StateMachines.Builder`, as above, chooses machine by machine. The shop's
-[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) builds its set
+[OrderFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/OrderFlowTest.java) builds its set
 with `recordTrail()`, and reads in the trail of a cancellation the order's hop, then the hop of each item.
 
 `flow().trail()` lists `FlowEntry` values, in the order the call took them, cascaded steps, the exits of sub-machines
@@ -315,16 +315,18 @@ A call that records its trail creates its flow when its step starts, so it hands
 the trail even when no step or hook wrote to it, a rejected call included. Two such outcomes are equal only when their
 trails are, `at()` included.
 
-`recordTrail()` reads `InstantSource.system()`. `recordTrail(InstantSource clock)` reads `clock` instead, on the thread
-running the call, once per entry the call appends, an entry that a rollback later drops included: a test can pass
-`InstantSource.fixed(...)`, a `Clock`, or a clock of its own that advances on each read, which then leaves a gap for
-each dropped entry, such as the failed hop of a failure route. A clock that throws anything but an `Error`, a checked
+The trail is read on the machine's clock, `InstantSource.system()` unless the builder's `clock(InstantSource clock)`
+named another one, the clock `ctx.now()` reads too, as [guard evidence](guard-evidence.md#read-the-time-of-the-call)
+says. The trail reads it on the thread running the call, once per entry the call appends, an entry that a rollback
+later drops included, apart from the one instant `now()` answers: a test can pass `InstantSource.fixed(...)`, a
+`Clock`, or a clock of its own that advances on each read, which then leaves a gap for each dropped entry, such as the
+failed hop of a failure route. A clock that throws anything but an `Error`, a checked
 exception included, fails the call, as an identity function that throws does: the entry it could not mark stays out of
 the trail. When it throws while the call reads the instant of the `Failed` entry that ends a failed call, whatever
 failed the call, the call's `CallFailedException` carries what it threw as suppressed, unless it threw that very
 exception, and its trail ends without that entry; an `InterruptedException` suppressed there interrupts the thread
 again. A clock that answers `null` counts as one that throws a `NullPointerException`. A call whose root machine was
-built without `recordTrail` reads no clock and stores no time.
+built without `recordTrail` stores no time.
 
 The trail records what the call took and how it ended; the [`TRACE` lines](logs.md) show each step on the way, its
 guards and its action included. To assert the flow and its trail in a test, see

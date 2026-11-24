@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # The Maven adapter
 
@@ -120,14 +120,14 @@ reads `<testRelease>`, `<testSource>` and `<testTarget>`, or their `maven.compil
 
 ## Contents
 
-- [The eight goals](#the-eight-goals)
+- [The nine goals](#the-nine-goals)
 - [The compiler execution the goals read](#the-compiler-execution-the-goals-read)
 - [Outputs](#outputs)
 - [Sources, release and encoding](#sources-release-and-encoding)
 - [Configuration parameters](#configuration-parameters)
 - [What the Maven adapter requires, and refuses](#what-the-maven-adapter-requires-and-refuses)
 
-## The eight goals
+## The nine goals
 
 | Goal | Phase | What it does |
 | --- | --- | --- |
@@ -139,16 +139,17 @@ reads `<testRelease>`, `<testSource>` and `<testTarget>`, or their `maven.compil
 | `complete-test` | `test-compile` | the same for the test source set |
 | `export-dot` | none; forks the lifecycle up to `compile` first | writes the Graphviz DOT of every machine of the main compilation into `target/graphmaquina/main/dot`, as [Export from the command line](graph-inspection.md#export-from-the-command-line) describes |
 | `export-dot-test` | none; forks the lifecycle up to `test-compile` first | the same for the test compilation, into `target/graphmaquina/test/dot` |
+| `list-exports` | none; forks no lifecycle | prints the export index of every entry of the main compilation's compile classpath that publishes one, and marks each one the compilation would refuse with `SG602`, without generating or compiling; a module of the same reactor is read once it compiled earlier in the same run, as in `mvn compile graphmaquina:list-exports`, as [see what a dependency exports](cross-module-composition.md#see-what-a-dependency-exports) shows |
 
 The goal prefix is `graphmaquina`, so a goal can also be invoked directly, for example
 `mvn graphmaquina:generate`.
 
 A goal does nothing, and says so at info level (`StateGraph skips <compilationId>: …`), for a compilation the build
-switches off the way `maven-compiler-plugin` skips its own goal: `maven.main.skip` or `<skipMain>` for the four
+switches off the way `maven-compiler-plugin` skips its own goal: `maven.main.skip` or `<skipMain>` for the five
 main goals, `maven.test.skip` or `<skip>` for the four test goals. So does it for a compilation the default
 lifecycle runs no execution of the compiler's goal for, as when `default-compile` is bound to the phase `none`, or
 to a phase of another lifecycle such as `pre-site`, and nothing else compiles the main sources. Nothing is
-generated, retired or published then. All eight do nothing in a project packaged as `pom`, such as the parent of a
+generated, retired or published then. All nine do nothing in a project packaged as `pom`, such as the parent of a
 multi-module build whose modules inherit the executions, and the two export goals also do nothing for a compilation
 that publishes no StateGraph index.
 
@@ -316,8 +317,8 @@ the configured one, as listed below.
 
 Both parameters can also be set in the `<configuration>` of one execution, which is how the main and the test
 compilation get distinct identities of your choice. Each lifecycle goal binds to its default phase, the one in the
-table of [the eight goals](#the-eight-goals), so an execution may leave `<phase>` out; the two export goals bind to
-none. The goals are thread-safe, so a parallel
+table of [the nine goals](#the-nine-goals), so an execution may leave `<phase>` out; the two export goals and
+`list-exports` bind to none. The goals are thread-safe, so a parallel
 build (`mvn -T`) can run them, and the plugin requires Maven to run on Java 21 or later. The generator is a dependency of
 the plugin, at the plugin's own version, which Maven resolves with the plugin from the plugin repositories. `mvn -X` logs the generator's command line, and anything the
 generator writes to its error stream while it succeeds is logged as a warning.

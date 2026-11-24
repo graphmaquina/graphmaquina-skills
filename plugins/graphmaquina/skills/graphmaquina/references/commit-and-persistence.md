@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Commit, hooks, observers and persistence
 
@@ -12,7 +12,7 @@
 ![Root actions, cascades and sub-machines stage changes in a shared unit of work. Commit checks original states and
 writes final states; hooks, independent watch reactions and the automatic steps of the entities the commit moved
 follow, then the observers learn how the call ended, and the call returns its outcome with its frozen flow, its
-reactions and its automatic steps.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/commit-lifecycle.svg)
+reactions and its automatic steps.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/commit-lifecycle.svg)
 
 Observers are told that the call starts before step 1. A call that completes tells them in step 9; one that throws tells
 them before the exception leaves the call.
@@ -275,6 +275,50 @@ machine.
 
 When working with an ORM, load and reuse a consistent object instance for each identity within the operation.
 Identity tracking does not provide database uniqueness enforcement or cross-process coordination.
+
+An entity that has no database key yet, such as one built in memory for a single call or one an import reads before it
+is saved, still needs an identity in a registry. Give it one when it is created, such as a random UUID in a field its
+identity reader returns, and keep it for the entity's whole life; never derive it from fields a transition changes.
+
+### Derived state
+
+An entity does not have to store its state. When it keeps flags or dates instead, its state reader derives the state
+from them and its writer sets what the new state means, and the machine reads and writes the state through the two
+like a stored one. The copy in
+[DerivedStateTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/loan/DerivedStateTest.java)
+keeps three flags:
+
+```java
+LoanStatus status() {
+    if (lost) {
+        return LOST;
+    }
+    if (returned) {
+        return RETURNED;
+    }
+    return overdue ? OVERDUE : BORROWED;
+}
+
+void setStatus(LoanStatus status) {
+    overdue = status == OVERDUE;
+    returned = status == RETURNED;
+    lost = status == LOST;
+}
+```
+
+and the machine is built over the two methods:
+
+```java
+StateMachine<Copy, LoanStatus, LoanTransition> copies = StateMachines.from(graph())
+        .state(Copy::status, Copy::setStatus)
+        .build();
+```
+
+The writer is the setter of [Initialize and protect state](#initialize-and-protect-state): the commit calls it once
+per entity, with the last state the call wrote, and it must not throw. Keep the reader and the writer each other's
+inverse, so the state the machine reads back is the one it wrote. With annotations, mark the reader with
+`@GraphProperty`, name it as the `Definition`'s `state`, and give it a writer of the shape
+[properties and accessors](graph-model.md#properties-and-accessors) describes.
 
 ### Framework and database boundaries
 

@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.7 documentation, copied from tag v2.0.7 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Compose machines
 
@@ -6,7 +6,7 @@
 deposit at AUTHORIZING; a captured deposit exits through DEPOSIT_PAID to BALANCE, which starts the balance; a captured
 balance exits through BALANCE_PAID to CONFIRMED; DECLINED and VOIDED exit to CANCELLED. CANCEL leaves either state from
 its border and runs no exit. The payment machine knows no parent, and the subscription machine binds it
-too.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/docs/images/submachine-binding.svg)
+too.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/submachine-binding.svg)
 
 A state can hold a whole machine of its own: its sub-machine, or child. The repository's billing example, in the
 package `io.github.graphmaquina.example.billing`, binds one payment machine three times. A booking pays a deposit in
@@ -134,7 +134,7 @@ an identifier of the wrong machine is a javac error:
 | `child` | A property of the parent that returns `Optional` of the child's entity: `Booking.deposit()` and `Booking.balance()` return `Optional<Payment>`. |
 | `parentLookup` | A `@GraphLookup` method that finds the parent of a child entity, described below. |
 | `parent` | Instead of `parentLookup`, a property of the child that returns `Optional` of the parent's entity. A child over another entity than the parent's needs `child` and exactly one of `parent` or `parentLookup` (`SG806`). |
-| `exits` | One `Exit(on, transition)` per terminal state of the child: the identifier of the parent that the terminal state selects, which needs an edge from the bound state (`SG801`, `SG802`). Two terminal states may select the same identifier, as `DECLINED` and `VOIDED` do in `Subscriptions` below. |
+| `exits` | One `Exit(on, transition)` per terminal state of the child: the identifier of the parent that the terminal state selects, which needs an edge from the bound state (`SG801`, `SG802`). Two terminal states may select the same identifier, as `DECLINED` and `VOIDED` do in `Subscriptions` below. That edge is neither a gate nor external (`SG114`). |
 
 An identifier that an exit names runs from the bound state only when the child ends. No `onFailure`, recovery rule or
 rule of that state's watch may name it from there, and no operation of the facade may execute it at all, since an
@@ -424,7 +424,7 @@ test `AsyncExitTest` holds the exit open with a `ControlledAsyncAction`.
 machine, such as `DEPOSIT: Payment/PaymentStatus` with the state in bold, which holds the child's own diagram.
 [Inspect graphs and export diagrams](graph-inspection.md) says how each edge is drawn, and the core
 tests pin a booking with one payment machine bound in two states in
-[submachine-shared-child.dot](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-core/src/test/resources/golden/submachine-shared-child.dot).
+[submachine-shared-child.dot](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-core/src/test/resources/golden/submachine-shared-child.dot).
 
 A call that ends a child its parent held commits the parent's exit, or moved the parent itself, so the commit's check
 of the original states covers the parent. A call that moves a child to a state that is not terminal leaves the parent
@@ -444,7 +444,7 @@ with `StateMachines.Builder.build()` refuses any sub-machine binding, since its 
 
 Assert bindings, starts and both refusals with the typed views of the testing guide's
 [sub-machines](testing-advanced.md#sub-machines) section. The
-[billing tests](https://github.com/graphmaquina/graphmaquina/blob/v2.0.7/graphmaquina-example/src/test/java/io/github/graphmaquina/example/billing) run the flows of this
+[billing tests](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/billing) run the flows of this
 section: the starts and exits of a booking, the detached deposit of a cancelled booking, which a check of `capture`
 also finds, the `NO_ROOM` route, a renewal that restarts its payment, the stay and the asynchronous exit.
 

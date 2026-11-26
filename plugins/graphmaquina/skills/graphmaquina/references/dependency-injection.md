@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.9 documentation, copied from tag v2.0.9 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Dependency injection
 
@@ -16,7 +16,7 @@ library depends on one.
 
 ## The set by hand
 
-The [loan's wiring](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanWiring.java) is the
+The [loan's wiring](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanWiring.java) is the
 whole recipe without a framework: the constructor builds the set from the reservations service its guards read, the
 application asks for the facade, and the owner closes the set.
 

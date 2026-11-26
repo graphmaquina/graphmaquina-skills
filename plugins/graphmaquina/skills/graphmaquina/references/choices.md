@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.9 documentation, copied from tag v2.0.9 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Choose the first admitted transition
 
@@ -34,7 +34,7 @@ choice is a call that the application makes, now, with an input that the guards 
 ## Declare a choice
 
 The shipment machine of the example module,
-[Shipments](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/shipment/Shipments.java), declares
+[Shipments](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/shipment/Shipments.java), declares
 `DELIVER` and `RETURN` on the interface, without an operation, and a choice `observe` over them, with its check
 `canObserve`:
 
@@ -74,7 +74,7 @@ implements each: it refuses a null argument with a `NullPointerException` that n
 for the check, without the input for a method that takes none.
 
 The guards of the candidates, in
-[ShipmentGuards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/shipment/ShipmentGuards.java),
+[ShipmentGuards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/shipment/ShipmentGuards.java),
 read the carrier's report through `ctx.input(...)`, as the guards of an operation read its input:
 
 ```java
@@ -123,7 +123,7 @@ with the DSL does the same with `machine.supplyAsync(() -> machine.choose(entity
 `AsyncStateMachine` has no `choose`. It may start where a call may start: inside a call, from a guard, an action or an
 observer for instance, it is refused before it starts with `ReentrantTransitionException`, as `execute` is.
 
-In [ShipmentFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/shipment/ShipmentFlowTest.java),
+In [ShipmentFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/shipment/ShipmentFlowTest.java),
 a report of a delivery delivers the shipment:
 
 ```java
@@ -189,7 +189,7 @@ guard, for an entity that no enclosing call or check holds, and each candidate's
 call or check. A held entity is refused with `ReentrantTransitionException` before the first check starts, and such an
 answer logs nothing.
 
-In [ShipmentFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/shipment/ShipmentFlowTest.java),
+In [ShipmentFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/shipment/ShipmentFlowTest.java),
 the check of a delivery report chooses `DELIVER` once `RETURN` was refused, and moves nothing:
 
 ```java
@@ -255,7 +255,7 @@ the `rejections()` of a `NoneAdmitted` one, each refusal with the view of an
 [eligibility answer](eligibility.md#test-a-check). The outcome of a choice is read with `assertThat(outcome)`:
 `isApplied()` or `isFailed()` with `requestedTransition(id)`, or `isIgnored()` with
 `hasReason(IgnoreReason.NO_CANDIDATE_ADMITTED)` and its `rejections()`. In
-[ShipmentFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/shipment/ShipmentFlowTest.java),
+[ShipmentFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/shipment/ShipmentFlowTest.java),
 a delivered shipment refuses both candidates with the reason of its policy, and its check admits none:
 
 ```java

@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.9 documentation, copied from tag v2.0.9 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Deadlines, cancellation and executors
 
@@ -38,7 +38,7 @@ machine's budget and for an action's `@Timeout` alike.
 | Async guard | In a call, the root's deadline; in an eligibility check, a check nested in a guard included, the check's own: its machine's `asyncTimeout`, counted from the check's start | That guard's pending wait; an action's `@Timeout` does not cover its guards |
 | Service/client timeout | Defined by your service client | The service request according to that client's cancellation/timeout contract |
 
-![An eight-second root budget starts with root execution. If an action returns its stage at second four, a five-second action timeout still allows only four seconds of waiting; a two-second action timeout allows two seconds.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/async-deadlines.svg)
+![An eight-second root budget starts with root execution. If an action returns its stage at second four, a five-second action timeout still allows only four seconds of waiting; a two-second action timeout allows two seconds.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/docs/images/async-deadlines.svg)
 
 The effective action wait deadline is the earlier of the root deadline and the action-specific deadline.
 If guards and other synchronous work have already consumed four seconds of an eight-second root budget, an
@@ -94,7 +94,7 @@ a new wrapper of a shared future on each call, such as `shared.thenApply(...)`, 
 which the engine remembers too, until the shared future completes. A `CompletionStage` implementation of your own
 keeps whatever its own `handle` keeps.
 
-![After an engine wait times out, graph state does not commit. The user stage and external service can finish later, but that completion does not resume the aborted graph transaction.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/async-late-completion.svg)
+![After an engine wait times out, graph state does not commit. The user stage and external service can finish later, but that completion does not resume the aborted graph transaction.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/docs/images/async-late-completion.svg)
 
 The same story as a sequence, for an action whose service answers after the wait gave up:
 
@@ -144,7 +144,7 @@ Capture the data required by the service while the action or guard is running. P
 
 ![Transaction-aware context operations belong to the original operation thread and live transaction. Service
 callbacks receive immutable data and translate results without using peer views, cascades or the
-flow.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/async-context-boundary.svg)
+flow.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/docs/images/async-context-boundary.svg)
 
 `ctx.peer(...)`, `ctx.cascade(...)`, `ctx.cascadeAll(...)`, `ctx.flow()`, context-derived peer views and every
 operation of a context's flow, `get`, `keys`, `entity`, `trail`, `put` and `remove`, require both the original
@@ -283,8 +283,8 @@ the test's own budget. [Controlled asynchronous invocations](testing-samples.md#
 shows them at work.
 
 Also cover hook failures and concurrent-entity policy in the application. The repository's
-[async runtime tests](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-core/src/test/java/io/github/graphmaquina/runtime/AsyncTest.java) and
-[context lifetime tests](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-core/src/test/java/io/github/graphmaquina/runtime/SingleMachineTest.java)
+[async runtime tests](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-core/src/test/java/io/github/graphmaquina/runtime/AsyncTest.java) and
+[context lifetime tests](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-core/src/test/java/io/github/graphmaquina/runtime/SingleMachineTest.java)
 provide focused examples of deadline and ownership behavior.
 
 ---

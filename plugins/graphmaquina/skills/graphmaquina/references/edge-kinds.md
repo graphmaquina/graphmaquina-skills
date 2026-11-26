@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.9 documentation, copied from tag v2.0.9 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Gates and external edges
 
@@ -8,7 +8,7 @@ question, such as whether a loan may be extended, and nothing ever executes it. 
 takes: the machine knows the state it leads to, so that state counts as reachable, but no request of the machine moves
 an entity along it.
 
-![The loan machine with its ordinary edges, its dotted gate REQUEST_EXTENSION and its dashed external edge REPORT_LOST](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/edge-kinds.svg)
+![The loan machine with its ordinary edges, its dotted gate REQUEST_EXTENSION and its dashed external edge REPORT_LOST](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/docs/images/edge-kinds.svg)
 
 ## Contents
 
@@ -26,7 +26,7 @@ with `allowsCycle` on its state and an operation that the application had to be 
 self-loop without the risk: its guards and its state's policy answer a check exactly as they would for any edge, and
 every request of its identifier is answered as if the state had no edge for it.
 
-The [loan facade](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/Loans.java) declares the
+The [loan facade](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/Loans.java) declares the
 gate on the interface, with `gate = true`, and a check for it:
 
 ```java
@@ -58,7 +58,7 @@ What a gate answers, and to whom:
 The library's inventory system declares a book lost and writes `LOST` on the loan itself. Before external edges, `LOST`
 was unreachable for the machine, which the build refuses as `SG203`, so the graph needed an edge the application had to
 promise never to call. An external edge says what happens: the entity reaches `LOST`, but not through this machine. The
-[loan facade](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/Loans.java) declares it from
+[loan facade](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/Loans.java) declares it from
 both states a loan can be lost in:
 
 ```java
@@ -92,7 +92,7 @@ A gate on a terminal state is an edge leaving a terminal state, `SG202`. [Diagno
 ## Write them with the DSL
 
 `gate()` and `external()` mark the edge they follow. The
-[loan's DSL test](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/loan/LoanDslTest.java) declares
+[loan's DSL test](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/loan/LoanDslTest.java) declares
 the annotated graph again and finds the same structure:
 
 ```java

@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.9 documentation, copied from tag v2.0.9 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Guard evidence: time, shared reads, typed input and failures
 
@@ -23,7 +23,7 @@ later `now()` of the same request answers that instant: the guards and actions o
 the checks its guards start all decide at one moment, so two guards never disagree about whether a deadline passed. A
 check of its own, a choice check for all its candidates, a watch reaction and each automatic attempt read the clock
 again, and a request that never asks reads no clock. The
-[loan's guards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanGuards.java) compare it
+[loan's guards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanGuards.java) compare it
 with the due date:
 
 ```java
@@ -35,7 +35,7 @@ public GuardResult beforeDue(GuardContext<Loan, LoanStatus, LoanTransition> ctx)
 ```
 
 `TransitionContext.now()` answers the same instant to an action. A test hands the set a clock it controls, as the
-[loan's flow test](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/loan/LoanFlowTest.java) does to
+[loan's flow test](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/loan/LoanFlowTest.java) does to
 put a loan past its due date:
 
 ```java
@@ -52,7 +52,7 @@ The extension gate has two guards that need the book's reservations: one refuses
 other while a course holds it. Each could call the reservations service; `ctx.memo(key, supplier)` makes them share one
 answer. The first guard of the request that asks for the key about an entity computes the value with the supplier;
 every later guard of the request that asks about the same entity gets the same value back. The
-[loan's guards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanGuards.java) declare the
+[loan's guards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanGuards.java) declare the
 key once, as a constant:
 
 ```java
@@ -94,7 +94,7 @@ is empty for them. [Runtime exceptions](runtime-exceptions.md) lists both access
 finds a null state the same way.
 
 When the caller should handle the service's failure itself, the guard declares the types it propagates. The
-[loan's reservation guards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanGuards.java)
+[loan's reservation guards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/loan/LoanGuards.java)
 declare `ReservationsUnavailable`:
 
 ```java

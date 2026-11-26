@@ -1,4 +1,4 @@
-> GraphMaquina 2.0.8 documentation, copied from tag v2.0.8 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
+> GraphMaquina 2.0.9 documentation, copied from tag v2.0.9 of https://github.com/graphmaquina/graphmaquina. Other versions: https://graphmaquina.dev/v/latest/llms.txt
 
 # Automatic transitions
 
@@ -14,8 +14,8 @@ The library reports and the caller decides. What goes wrong in a chain never thr
 whose call committed: its outcome carries the failure, the abort or the guard that stopped the chain, and the
 application answers with its own error or calls `advance` later. The examples come from the onboarding and the
 profile of the example module, whose tests are in
-[OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java) and
-[ProfileFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/profile/ProfileFlowTest.java).
+[OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java) and
+[ProfileFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/profile/ProfileFlowTest.java).
 
 ## Contents
 
@@ -34,7 +34,7 @@ profile of the example module, whose tests are in
 ## Declare automatic edges
 
 An account sets its password through an operation, and every step after that is automatic. The facade,
-[Accounts](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/Accounts.java), marks those
+[Accounts](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/Accounts.java), marks those
 edges on the interface:
 
 ```java
@@ -83,7 +83,7 @@ of sub-machines, the commit, the hooks and the watch reactions. When no candidat
 order tried. An attempt never returns `Rejected`, since it requests no identifier.
 
 The guards of the onboarding, in
-[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
+[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
 refuse with the reason the caller reads:
 
 ```java
@@ -126,14 +126,14 @@ ends without an attempt in a state that has no automatic edge.
 ![After setPassword commits the account from NEW to PASSWORD_SET, and once any hooks and watch reactions of that commit
 ran, the account runs its automatic chain as step 8: COMPLETE_INFO to INFO_SET, COMPLETE_ADDRESS to
 ADDRESS_SET and, once ACTIVATE_PREMIUM is refused, ACTIVATE to ACTIVE, each attempt a call of its own that
-automaticSteps() lists.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/docs/images/automatic-chain.svg)
+automaticSteps() lists.](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/docs/images/automatic-chain.svg)
 
 The chains run as step 8 of [the commit sequence](commit-and-persistence.md#commit-hooks-and-observers), once the
 commit's hooks ran and its [watch reactions](coordination.md#watch-other-machines) were dispatched. So every state an
 entity commits fires its watches before the entity moves on: an owner that waits for all its items in a state sees
 each item there, even one that then goes on by itself.
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 an account whose personal info and address are complete reaches `ACTIVE` in the call that sets its password. The
 outcome is the operation's own, to `PASSWORD_SET`, and its `automaticSteps()` list the three attempts that followed,
 the third once `ACTIVATE_PREMIUM` refused an account that is not premium. A premium account, whose data is otherwise
@@ -193,7 +193,7 @@ failure throws what `execute` would throw, an `UnhandledFailureException` for a 
 included, and a `null` entity, or a call made where no call may start, is refused before the call starts, as
 `reevaluate` refuses them.
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 an account stopped at `INFO_SET` for want of its address goes on once the address arrives, and a second `advance`,
 on `ACTIVE`, has nothing left to do:
 
@@ -224,8 +224,8 @@ that names an automatic edge, an `execute` of its identifier, a choice's candida
 runs that edge, and its commit chains no entity of that machine, while the entities of an `AFTER_COMMIT` machine that it
 moved chain as usual. A profile fits: saving what the user typed must not complete it behind the user's back. The guards
 `hasName` and `hasAddress` are static methods of
-[ProfileGuards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/profile/ProfileGuards.java). In
-[Profiles](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/profile/Profiles.java), `NAME` and
+[ProfileGuards](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/profile/ProfileGuards.java). In
+[Profiles](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/profile/Profiles.java), `NAME` and
 `COMPLETE` are the automatic edges that they guard, and the operation `edit` is a self-loop of `DRAFT` and of `NAMED`:
 
 ```java
@@ -249,7 +249,7 @@ On such a machine, `advance` makes its attempt and then runs the chain of that s
 over every automatic edge. The commit of any other call runs no chain for an entity of the machine: an operation, an
 `execute`, a [choice](choices.md#after-the-commit), a `reevaluate`, a watch reaction, a cascade, the start or the exit
 of a sub-machine, and an attempt or a chain of another entity. In
-[ProfileFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/profile/ProfileFlowTest.java),
+[ProfileFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/profile/ProfileFlowTest.java),
 a profile that has its name and its address stays in `DRAFT` after `edit`, with no step in its outcome:
 
 ```java
@@ -332,7 +332,7 @@ that names it, fails by it to the recovery state, and its commit chains no entit
 the build fails.
 
 The action of `COMPLETE_ADDRESS`, in
-[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
+[AccountActions](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/AccountActions.java),
 returns the failure kind that the route takes when the verifier cannot verify the address:
 
 ```java
@@ -344,7 +344,7 @@ public ActionOutcome verifyAddress(TransitionContext<Account, AccountStatus, Acc
 }
 ```
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 the failure takes `FLAG` to `FLAGGED`, the chain goes on through `REQUEST_REVIEW`, and the account ends in `REVIEW`.
 The call's outcome is still `Applied`, and it carries the failure:
 
@@ -375,7 +375,7 @@ one that aborted. Their types carry wildcards, because the attempts can be of ot
 that a call started by a hook decided is in that call's own outcome, which only the hook receives, so they do not find
 it.
 
-In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
+In [OnboardingFlowTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingFlowTest.java),
 an account without its address stops at `INFO_SET`, and the block says why:
 
 ```java
@@ -394,7 +394,7 @@ assertThat(outcome).isApplied().automaticBlock().hasReason(IgnoreReason.NO_CANDI
 
 A guard that stops the chain is no error for the library: the application decides. The library depends on no web
 framework, so the example's
-[OnboardingController](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/OnboardingController.java)
+[OnboardingController](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/main/java/io/github/graphmaquina/example/onboarding/OnboardingController.java)
 throws its own `BadRequestException`, which a framework's exception handler would turn into a 400: for a call that
 was rejected, for an automatic step that failed, even by a route that let the chain go on, and for one that stopped at
 a guard. Otherwise it answers with the state the account reached. `theControllerAnswersBadRequest` runs each case:
@@ -433,7 +433,7 @@ covers the rest of what a database transaction does not get from the in-memory c
 
 ## The same graph with the DSL
 
-[OnboardingDslTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingDslTest.java)
+[OnboardingDslTest](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/java/io/github/graphmaquina/example/onboarding/OnboardingDslTest.java)
 declares the onboarding's graph with the [DSL](dsl.md). It checks that the graph's structural snapshot is the
 annotated graph's, and that a machine built from it takes a complete account to `ACTIVE` in the call that sets its
 password:
@@ -489,8 +489,8 @@ an automatic chain.
 draws an automatic edge in the theme's `automatic` color, blue by default, and prints `[auto]` on the line under the
 identifier of a state's only automatic edge, `[auto 1]`, `[auto 2]` and so on, in the declared order, when there are
 several, and `continues` in a route that continues. The onboarding's
-[golden diagram](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/resources/golden/account.dot) and
-[contract snapshot](https://github.com/graphmaquina/graphmaquina/blob/v2.0.8/graphmaquina-example/src/test/resources/contracts/account.graph) pin its marks and its order.
+[golden diagram](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/resources/golden/account.dot) and
+[contract snapshot](https://github.com/graphmaquina/graphmaquina/blob/v2.0.9/graphmaquina-example/src/test/resources/contracts/account.graph) pin its marks and its order.
 An eligibility check answers for an automatic edge as for any other. The assertions of `graphmaquina-test` on automatic
 edges, on `automaticSteps()` and on the three searches are in [testing samples](testing-advanced.md#automatic-transitions).
 
